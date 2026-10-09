@@ -17,7 +17,8 @@ function PreviewHost() {
     let active = true; let bridge: AppBridge | undefined;
     const client = new Client({ name: 'mot-lens-development-host', version: '0.1.0' }); clientRef.current = client;
     const start = async () => {
-      await client.connect(new StreamableHTTPClientTransport(new URL('http://127.0.0.1:8787/mcp')));
+      const endpoint = new URLSearchParams(location.search).get('endpoint') ?? 'http://127.0.0.1:8787/mcp';
+      await client.connect(new StreamableHTTPClientTransport(new URL(endpoint)));
       if (!active || !frame.current?.contentWindow) return;
       bridge = new AppBridge(client, { name: 'MOT Lens development preview (not ChatGPT)', version: '0.1.0' },
         { serverTools: {}, openLinks: {}, updateModelContext: {}, message: {}, logging: {} },

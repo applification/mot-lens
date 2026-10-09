@@ -13,7 +13,7 @@ Verification: `bun run verify`; browser installation: `bunx playwright install c
 Browser tests default to the exact production resource returned by MCP.
 Source HMR preview is opt-in at `http://127.0.0.1:5173/?source=dev`.
 
-Design: `.astack/report/mot-lens.pen`, captured before UI implementation.
+Design: `.astack/report/design/mF32N.png`, exported from the Pen direction created before UI implementation.
 Evidence: `.astack/report/evidence/`, final release report `.astack/report/verification.md`.
 Contract: `.astack/report/contract.md`. Hosting plan: `.astack/cloud/transition.md`.
 Feature/control map: `docs/FEATURES.md`. Domain glossary: `docs/GLOSSARY.md`.

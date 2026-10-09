@@ -10,6 +10,6 @@
   ],
   "durable_objects": { "bindings": [{ "name": "DVSA_GATE", "class_name": "DvsaGate" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DvsaGate"] }],
-  "vars": { "BUILD_ID": "0.1.0" },
+  "vars": { "BUILD_ID": "0.1.0", "WIDGET_DOMAIN": "https://mot-lens.web3-blog.workers.dev" },
   "observability": { "enabled": false }
 }

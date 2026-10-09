@@ -13,7 +13,9 @@
     "test:e2e": "playwright test",
     "verify": "bun run check && bun run test && bun run build && bun run test:e2e",
     "start": "node --env-file-if-exists=.env --import tsx apps/mcp/src/local.ts",
-    "control": "tsx scripts/control.ts"
+    "control": "tsx scripts/control.ts",
+    "package:plugin": "tsx scripts/package-plugin.ts",
+    "verify:hosted": "tsx scripts/verify-hosted.ts"
   },
   "dependencies": {
     "@mot-lens/domain": "workspace:*",
