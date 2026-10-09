@@ -20,6 +20,9 @@ selected context, selected-record user message, history filtering, linked observ
 chart keyboard selection, readable table, theme change, mobile/no overflow, no-test/first-due,
 mixed/missing data, new lookup selection reset, remount, cancellation and malformed recovery.
 Representative edge fixtures are clearly sample-tagged; no test labels them as official data.
+The final verification command builds the generated resource before type-checking on fresh
+checkouts. Turbo includes shared domain/UI sources and the embedding script in its cache key;
+unchanged embedding output does not restart the development watcher during browser checks.
 
 Domain/adapter cases include out-of-order cross-source dates, same-day/identical timestamps,
 undated records, latest result vs supplied passing-test expiry, no synthesized expiry, MI/KM
@@ -37,6 +40,8 @@ Initial public version: `f3dc8c09-ae92-4d45-a68f-e838fd2ff268` at
 `https://mot-lens.web3-blog.workers.dev/mcp`; initial build identifies the source commit above.
 Final hosted JSON evidence records the deployed source build and identical resource SHA-256.
 Final deployment version is recorded with the release command output in delivery/PR notes.
+Delivery deployment: `6564cd42-9ea8-42ae-af22-68f986ccd647`, source build
+`aec56c5b6acbe7e4da2444b4536dc858d0326700`, with the dedicated UI origin metadata.
 No paid plan upgrade, model API, real-vehicle import, account, analytics or scheduled work.
 
 Evidence PNGs under `evidence/` are real captures of the built MCP UI: compact light,

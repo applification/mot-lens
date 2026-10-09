@@ -1,1 +1,7 @@
-{"tasks":{"build":{"dependsOn":["^build"],"outputs":["dist/**","generated/**"]},"dev":{"cache":false,"persistent":true}}}
+{
+  "globalDependencies": ["scripts/bundle-widget.ts", "packages/domain/src/**", "packages/ui/src/**"],
+  "tasks": {
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**", "generated/**"] },
+    "dev": { "cache": false, "persistent": true }
+  }
+}

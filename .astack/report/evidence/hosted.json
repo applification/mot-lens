@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-10-09T14:14:02.263Z",
+  "endpoint": "https://mot-lens.web3-blog.workers.dev/mcp",
+  "app": "mot-lens",
+  "status": "ok",
+  "mode": "sample",
+  "build": "aec56c5b6acbe7e4da2444b4536dc858d0326700",
+  "tools": [
+    "get_vehicle_history",
+    "show_vehicle_report"
+  ],
+  "sampleTests": 9,
+  "sampleObservations": 2,
+  "resource": {
+    "mimeType": "text/html;profile=mcp-app",
+    "bytes": 492363,
+    "sha256": "7b4d1ccbcce051a76f63e9620520e05f3de73e14d97b22d47365dd5416716b4b",
+    "domain": "https://mot-lens.web3-blog.workers.dev",
+    "csp": {
+      "connectDomains": [],
+      "resourceDomains": []
+    }
+  },
+  "foreignOriginStatus": 403,
+  "oversizedBodyStatus": 413,
+  "verified": "Hosted protocol and identical packaged UI; no live DVSA or installed ChatGPT verification."
+}
