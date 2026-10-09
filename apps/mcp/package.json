@@ -1,0 +1,1 @@
+{"name":"@mot-lens/mcp","private":true,"type":"module","scripts":{"build":"tsx ../../scripts/bundle-widget.ts","dev":"node --env-file-if-exists=../../.env --import tsx --watch src/local.ts"},"dependencies":{"@mot-lens/domain":"workspace:*","@mot-lens/mcp-ui":"workspace:*"}}
