@@ -1,0 +1,1 @@
+{"name":"@mot-lens/mcp-ui","private":true,"type":"module","scripts":{"build":"vite build","dev":"vite --host 127.0.0.1 --port 5173 --strictPort"},"dependencies":{"@mot-lens/domain":"workspace:*","@mot-lens/ui":"workspace:*"}}
