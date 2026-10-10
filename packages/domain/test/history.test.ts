@@ -1,8 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { chronological, makeReport, mileageInMiles, mileageLabel, normalizeRegistration, observations, recordedExpiry, latestTest, dateLabel, type Test } from '../src/index';
+import { chronological, makeReport, mileageInMiles, mileageLabel, normalizeRegistration, observations, recordedExpiry, latestTest, dateLabel, timestamp, type Test } from '../src/index';
 const test = (id: string, fields: Partial<Test> = {}): Test => ({ id, completedDate: '2026-01-01T10:00:00Z', odometerValue: '10000', odometerUnit: 'MI', odometerResultType: 'READ', testResult: 'PASSED', ...fields });
 
 describe('record accuracy', () => {
+  it('preserves supplied unfamiliar units without comparing them as miles', () => {
+    expect(mileageLabel(test('unknown', { odometerValue: '1234', odometerUnit: 'UNKNOWN' }))).toBe('1,234 UNKNOWN');
+    expect(mileageInMiles(test('unknown', { odometerUnit: 'UNKNOWN' }))).toBeNull();
+    expect(mileageLabel(test('missing', { odometerUnit: null }))).toBe('10,000 (unit not recorded)');
+    expect(mileageLabel(test('mi'))).toBe('10,000 mi');
+  });
+  it('does not roll impossible supplied dates into another month or chronology', () => {
+    for (const value of ['2026-02-31', '2026-02-29T12:00:00Z', '2026.04.31 12:00:00']) {
+      expect(timestamp(value)).toBeNull(); expect(dateLabel(value)).toBe(`Unrecognised date: ${value}`);
+    }
+    expect(dateLabel('2024-02-29')).toBe('29 Feb 2024');
+    expect(dateLabel('2026-02-28T23:00:00-02:00', true)).toBe('1 Mar 2026, 01:00');
+    expect(chronological([test('invalid', { completedDate: '2026-02-31' }), test('valid', { completedDate: '2026-03-02' })]).map(test => test.id)).toEqual(['valid', 'invalid']);
+    expect(dateLabel(null)).toBe('Date not recorded');
+  });
   it('formats retrieval timestamps with fractional seconds and legacy date separators', () => {
     expect(dateLabel('2026-10-09T13:36:22.123Z', true)).toBe('9 Oct 2026, 14:36');
     expect(dateLabel('2020.01.10 09:00:00', true)).toBe('10 Jan 2020, 09:00');

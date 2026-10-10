@@ -5,6 +5,40 @@ const json = (body: unknown, status = 200, headers?: HeadersInit) => new Respons
 const vehicle = { registration: 'AB12CDE', make: 'EXAMPLE', hasOutstandingRecall: 'No', motTests: [] };
 
 describe('DVSA boundary', () => {
+  it('spaces actual vehicle requests after slow token acquisition', async () => {
+    let now = 0; const starts: number[] = [];
+    const client = new DvsaClient({ credentials, now: () => now, sleep: async ms => { now += ms; }, fetch: async input => {
+      if (String(input).includes('login.microsoftonline')) { now += 1000; return json({ access_token: 'token', expires_in: 3600 }); }
+      starts.push(now); return json(vehicle);
+    } });
+    const results = await Promise.all([client.lookup('AB12CDE'), client.lookup('AB12CDE')]);
+    expect(results.map(result => result.registration)).toEqual(['AB12CDE', 'AB12CDE']);
+    expect(starts).toEqual([1000, 1350]);
+  });
+  it.each(['ascii', 'multibyte'] as const)('cancels oversized chunked %s JSON before buffering the whole response', async encoding => {
+    const text = JSON.stringify({ ...vehicle, model: (encoding === 'ascii' ? 'x' : '€').repeat(1_100_000) });
+    const bytes = new TextEncoder().encode(text); let emitted = 0; let cancelled = false;
+    const client = new DvsaClient({ credentials, fetch: async input => {
+      if (String(input).includes('login.microsoftonline')) return json({ access_token: 'token', expires_in: 3600 });
+      return new Response(new ReadableStream<Uint8Array>({
+        pull(controller) {
+          if (emitted >= bytes.byteLength) { controller.close(); return; }
+          const end = Math.min(emitted + 16_384, bytes.byteLength); controller.enqueue(bytes.slice(emitted, end)); emitted = end;
+        }, cancel() { cancelled = true; },
+      }, { highWaterMark: 0 }));
+    } });
+    const result = await new VehicleService({ client }).lookup('AB12CDE');
+    expect(result.kind === 'error' ? result.code : null).toBe('INVALID_RESPONSE');
+    expect(cancelled).toBe(true);
+    expect(emitted).toBeLessThanOrEqual(1_015_808);
+  });
+  it('accepts bounded chunked UTF-8 JSON without corrupting split characters', async () => {
+    const bytes = new TextEncoder().encode(JSON.stringify({ ...vehicle, model: 'Café €' })); let offset = 0;
+    const client = new DvsaClient({ credentials, fetch: async input => String(input).includes('login.microsoftonline')
+      ? json({ access_token: 'token', expires_in: 3600 })
+      : new Response(new ReadableStream<Uint8Array>({ pull(controller) { if (offset === bytes.length) controller.close(); else controller.enqueue(bytes.slice(offset, ++offset)); } })) });
+    expect((await client.lookup('AB12CDE')).model).toBe('Café €');
+  });
   it('uses current endpoint and both server-side authorization headers, reuses tokens and renews before returned expiry', async () => {
     let now = 100000; let tokenCount = 0; const received: { url: string; headers: Headers; body: string }[] = [];
     const client = new DvsaClient({ credentials, now: () => now, sleep: async () => {}, fetch: async (input, init) => {

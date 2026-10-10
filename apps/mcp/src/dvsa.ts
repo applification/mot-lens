@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { makeReport, normalizeRegistration, rawTestSchema, rawVehicleSchema, type LookupError, type Outcome, type RawVehicle } from '@mot-lens/domain';
+import { BodyTooLarge, readBoundedBody } from './body';
 
 const credentialSchema = z.object({
   DVSA_API_KEY: z.string().min(1), DVSA_CLIENT_ID: z.string().min(1), DVSA_CLIENT_SECRET: z.string().min(1),
@@ -40,10 +41,13 @@ export class DvsaClient {
   private now() { return (this.options.now ?? Date.now)(); }
   private sleep(ms: number) { return (this.options.sleep ?? (ms => new Promise<void>(resolve => setTimeout(resolve, ms))))(ms); }
   private async json(response: Response): Promise<unknown> {
-    if (Number(response.headers.get('content-length')) > 1_000_000) throw failure('INVALID_RESPONSE', 'DVSA returned an unusually large response. Please try again later.', true);
-    const body = await response.text();
-    if (body.length > 1_000_000) throw failure('INVALID_RESPONSE', 'DVSA returned an unusually large response. Please try again later.', true);
-    try { return JSON.parse(body); } catch { throw failure('INVALID_RESPONSE', 'DVSA returned an unreadable response. Please try again later.', true); }
+    let bytes: Uint8Array;
+    try { bytes = await readBoundedBody(response, 1_000_000); }
+    catch (error) {
+      if (error instanceof BodyTooLarge) throw failure('INVALID_RESPONSE', 'DVSA returned an unusually large response. Please try again later.', true);
+      throw error;
+    }
+    try { return JSON.parse(new TextDecoder().decode(bytes)); } catch { throw failure('INVALID_RESPONSE', 'DVSA returned an unreadable response. Please try again later.', true); }
   }
   private async accessToken(): Promise<string> {
     if (this.token && this.token.expiresAt > this.now() + 60_000) return this.token.value;
@@ -80,11 +84,11 @@ export class DvsaClient {
       if (this.cooldownUntil > this.now()) throw failure('RATE_LIMITED', 'DVSA has temporarily limited requests. Please try again after the indicated wait.', true, Math.ceil((this.cooldownUntil - this.now()) / 1000));
       let refreshed = false;
       for (let attempt = 0; attempt < 3; attempt++) {
-        const wait = Math.max(0, this.nextRequestAt - this.now()); if (wait) await this.sleep(wait);
-        this.nextRequestAt = this.now() + 350;
-        if (this.options.upstreamPermit && !await this.options.upstreamPermit()) throw failure('RATE_LIMITED', 'MOT Lens is limiting upstream requests. Please try again shortly.', true, 10);
         try {
           const token = await this.accessToken();
+          if (this.options.upstreamPermit && !await this.options.upstreamPermit()) throw failure('RATE_LIMITED', 'MOT Lens is limiting upstream requests. Please try again shortly.', true, 10);
+          const wait = Math.max(0, this.nextRequestAt - this.now()); if (wait) await this.sleep(wait);
+          this.nextRequestAt = this.now() + 350;
           const response = await (this.options.fetch ?? fetch)(`https://history.mot.api.gov.uk/v1/trade/vehicles/registration/${encodeURIComponent(registration)}`, {
             headers: { Authorization: `Bearer ${token}`, 'X-API-Key': this.options.credentials.DVSA_API_KEY, Accept: 'application/json' },
             signal: AbortSignal.timeout(8000), redirect: 'error',

@@ -36,6 +36,8 @@ preserved, including dangerous flags and unfamiliar categories.
 Latest result and latest supplied passing-test expiry are separate facts. An expiry is never
 calculated. Conflicting latest passing-test expiries remain unavailable. Dates use supplied
 ISO timestamps and UK display time; the local domain fixture also understands legacy dates.
+Impossible supplied calendar dates are retained as unrecognised raw values, never rolled
+into another month. Supplied unfamiliar mileage units stay visible but are not converted.
 
 OAuth uses a form-encoded client-credentials POST to the Microsoft Entra URL and scope issued
 by DVSA. Tokens are reused until 60 seconds before returned `expires_in`, with single-flight
@@ -50,7 +52,9 @@ lookups, at most three attempts for transient failures. At that pacing continuou
 traffic is below 247,000/day. Credentials should be dedicated to this deployment: traffic
 outside MOT Lens cannot be coordinated here. 429 is never immediately retried.
 
-Vehicle responses are memory-cached for at most 15 minutes/256 entries, identical simultaneous
+Vehicle responses may be reused for at most 15 minutes, with memory bounded to 256 entries.
+TTL limits freshness, not a timed erasure guarantee: idle expired entries can remain in
+memory until replacement, capacity eviction or process loss. Identical simultaneous
 queries coalesce, failures are not cached. Retrieval time and actual cache age are shown.
 Cloudflare may evict the memory coordinator after idle inactivity, discarding cache/tokens
 and cooldowns. A subsequent lookup may re-establish a quota cooldown with one upstream 429.

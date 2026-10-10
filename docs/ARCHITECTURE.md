@@ -14,6 +14,9 @@ observations, provenance and selected-record context. Pure functions carry no se
 `packages/ui` renders the report with props and callbacks. `apps/mcp-ui` owns the MCP Apps
 bridge, host theme/display mode, local selection and serialized context updates. It validates
 every delivered result and clears stale selection on new/cancelled/malformed/error outcomes.
+`ReportSession` owns the generation and context queue: superseded completions cannot
+replace a report, confirm a selection or send a waiting explanation. Teardown closes that
+scope. An already-sent context request is followed by the current replacement in order.
 
 `apps/mcp` owns DVSA authentication, bounded cache/queue, errors, two tool definitions and
 the HTML resource. `get_vehicle_history` is a headless read-only lookup; `show_vehicle_report`
@@ -23,7 +26,10 @@ Text summaries work in clients without an app renderer. Only the UI tool adverti
 Transport is current stateless Streamable HTTP using the MCP SDK's web-standard transport.
 Each POST owns a fresh server/transport and closes them after producing its JSON response.
 There are no resumable sessions or required GET SSE streams. Incoming bodies are actually
-stream-counted/capped at 32KiB; origin checks and public request limits precede execution.
+stream-counted/capped at 32KiB; the same byte reader bounds upstream JSON to 1MB and cancels
+overflowing streams. Explicit ChatGPT/loopback browser origins and public request limits
+precede execution. Origin trust never comes from the caller's Host header; SDK calls without
+an Origin remain supported.
 Registrations/text are data, never executable markup or instructions. React escapes record
 text; model context explicitly marks defect wording as untrusted record data.
 

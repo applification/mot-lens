@@ -4,8 +4,33 @@ import { createHttpApp } from '../src/http';
 import { VehicleService } from '../src/dvsa';
 import { outcomeSchema } from '@mot-lens/domain';
 import { RESOURCE_URI } from '../src/server';
+import { serve } from '@hono/node-server';
+import { request } from 'node:http';
 
 describe('real MCP contract', () => {
+  it('rejects an attacker-controlled matched Host/Origin on the real loopback server', async () => {
+    let lookups = 0;
+    const app = createHttpApp({ service: new VehicleService({ client: { lookup: async registration => { lookups++; return { registration, make: 'EXAMPLE' }; } } }), html: '', mode: 'live' });
+    const server = serve({ fetch: app.fetch, hostname: '127.0.0.1', port: 0 });
+    await new Promise<void>(resolve => server.listening ? resolve() : server.once('listening', resolve));
+    const address = server.address(); if (!address || typeof address === 'string') throw new Error('Missing fixture port');
+    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'get_vehicle_history', arguments: { registration: 'AB12CDE' } } });
+    const call = (origin?: string, host = `127.0.0.1:${address.port}`) => new Promise<{ status: number | undefined; cors: string | undefined; body: string }>((resolve, reject) => {
+      const req = request({ hostname: '127.0.0.1', port: address.port, path: '/mcp', method: 'POST', headers: {
+        host, ...(origin ? { origin } : {}), 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'content-length': Buffer.byteLength(body),
+      } }, res => { let text = ''; res.on('data', chunk => { text += chunk; }); res.on('end', () => resolve({ status: res.statusCode, cors: res.headers['access-control-allow-origin'] as string | undefined, body: text })); });
+      req.on('error', reject); req.end(body);
+    });
+    try {
+      const attacker = await call(`http://rebind.example:${address.port}`, `rebind.example:${address.port}`);
+      expect(attacker).toEqual({ status: 403, cors: undefined, body: '{"error":"Origin not permitted"}' }); expect(lookups).toBe(0);
+      for (const origin of ['http://127.0.0.1:5173', 'http://localhost:5173', 'https://chatgpt.com', undefined]) {
+        const valid = await call(origin); expect(valid.status).toBe(200); expect(valid.cors).toBe(origin);
+        expect(JSON.parse(valid.body).result.structuredContent.report.vehicle.registration).toBe('AB12CDE');
+      }
+      expect(lookups).toBe(1);
+    } finally { await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve())); }
+  });
   it('initializes, discovers focused tools, retrieves real domain records, reads the HTML resource and handles bad arguments', async () => {
     const service = new VehicleService({ client: { lookup: async registration => ({ registration, make: 'EXAMPLE', motTests: [] }) } });
     const app = createHttpApp({ service, html: '<!doctype html><title>MOT Lens test</title>', mode: 'live' });

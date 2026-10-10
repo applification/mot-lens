@@ -1,5 +1,11 @@
 # MOT Lens delivery evidence
 
+10 October review follow-up: `bun run verify` passes the production build, strict check,
+**32** domain/adapter/protocol checks and **eight** local packaged-resource browser journeys.
+Worker dry-run also passes. [Correction evidence](corrections.md) records baseline rejection,
+structural ownership and valid neighboring behavior for the retained safeguards.
+These review changes have not been deployed; the hosted evidence below remains historical.
+
 Verified 9 October 2026 on macOS, Node 24.21.0, Bun 1.4.0, Chromium/Playwright 1.64.0.
 Source implementation: `f7d58fa9306286319e67cf636d95b6e2e99e6e1f`; subsequent documentation,
 plugin packaging and unique UI-domain configuration are included in the delivery branch.

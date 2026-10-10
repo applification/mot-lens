@@ -32,6 +32,8 @@ tokens, cached vehicles and cooldowns. A cache hit reports the real age; no 15-m
 guaranteed. Eviction may require another upstream request to re-establish an outstanding
 cooldown. The singleton still serializes all active lookups with 350ms pacing; 429 is surfaced
 without automatic retry. Use a dedicated DVSA credential set for this deployment.
+The 15-minute TTL limits reuse, not timed erasure. Idle expired entries may remain in memory
+until replacement, capacity eviction or process loss, with at most 256 vehicle entries.
 
 The public binding allows 90 MCP requests/minute/IP per Cloudflare location. It is an
 eventually consistent abuse control, not a global quota or billing cap. Actual bodies are

@@ -55,6 +55,11 @@ export function timestamp(date: string | null | undefined): number | null {
   // Legacy fixtures may omit a timezone. Interpret consistently, without using
   // the operating system's timezone; never manufacture a date for an undated test.
   const text = date.replace(/^(\d{4})\.(\d{2})\.(\d{2})/, '$1-$2-$3').replace(' ', 'T');
+  const calendar = /^(\d{4})-(\d{2})-(\d{2})(?:$|T)/.exec(text);
+  if (!calendar) return null;
+  const [, year, month, day] = calendar;
+  const check = new Date(`${year}-${month}-${day}T00:00:00Z`);
+  if (!Number.isFinite(check.getTime()) || check.getUTCFullYear() !== Number(year) || check.getUTCMonth() + 1 !== Number(month) || check.getUTCDate() !== Number(day)) return null;
   const normalized = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(text) ? `${text}Z` : text;
   const ms = Date.parse(normalized);
   return Number.isFinite(ms) ? ms : null;
@@ -84,12 +89,12 @@ export function mileageLabel(test: RawTest): string {
   if (test.odometerResultType === 'UNREADABLE') return 'Unreadable';
   if (test.odometerValue === undefined || test.odometerValue === null || test.odometerValue === '') return 'Not recorded';
   const raw = /^\d+(\.\d+)?$/.test(test.odometerValue) ? Number(test.odometerValue).toLocaleString('en-GB', { maximumFractionDigits: 6 }) : test.odometerValue;
-  return `${raw} ${test.odometerUnit === 'MI' ? 'mi' : test.odometerUnit === 'KM' ? 'km' : '(unit not recorded)'}`;
+  return `${raw} ${test.odometerUnit === 'MI' ? 'mi' : test.odometerUnit === 'KM' ? 'km' : test.odometerUnit || '(unit not recorded)'}`;
 }
 
 export function dateLabel(value: string | null | undefined, withTime = false): string {
   const ms = timestamp(value);
-  if (ms === null) return 'Date not recorded';
+  if (ms === null) return value ? `Unrecognised date: ${value}` : 'Date not recorded';
   return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric',
     timeZone: 'Europe/London', ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}) }).format(ms);
 }
