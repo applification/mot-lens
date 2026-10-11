@@ -10,6 +10,9 @@ Start: `bun run dev` (MCP 127.0.0.1:8787; development host 127.0.0.1:5173).
 Control: `bun run control doctor`, `tools`, `sample`, `lookup REGISTRATION`, `resource`.
 Set `MOT_LENS_ENDPOINT` to target a hosted deployment explicitly.
 Verification: `bun run verify`; browser installation: `bunx playwright install chromium`.
+The production build enforces widget-only input and checks reached project modules for
+server/preview imports, browser network APIs and server environment access. Strict checking
+includes browser tests. Guard fixtures: `bun run test scripts/widget-boundary.test.ts`.
 Browser tests default to the exact production resource returned by MCP.
 Source HMR preview is opt-in at `http://127.0.0.1:5173/?source=dev`.
 

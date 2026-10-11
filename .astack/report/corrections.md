@@ -55,3 +55,37 @@ guarantee. The original no-database/no-background-job scope is preserved.
 
 Live DVSA credentials and actual installed ChatGPT remain unavailable. The public Worker
 still runs the 9 October deployment; these fixes are review-branch changes, not hosted proof.
+
+## Development environment enforcement — 10 October 2026
+
+Environment review baseline: `01b2ece` (clean checkout). These are new enforcement gaps
+in explicit `AGENTS.md` invariants, rather than claims of recurring implementation errors.
+Application modules and HTML entry points are preserved. No runtime correction was made.
+The recorded runtime findings above already have retained domain/protocol/browser checks.
+
+| Demonstrated gap and source | Environment change / owner | Enforcing command | Bad-case result | Valid-case result | Remaining coverage |
+| --- | --- | --- | --- | --- | --- |
+| `AGENTS.md` requires strict TypeScript; root `tsconfig.json` omitted `tests/`. A disposable browser-test file assigning `123` to `string` passed the original check (exit 0). | Root TypeScript configuration includes browser tests. | `bun run check` (also in `bun run verify` and GitHub CI) | Same disposable contribution rejected with TS2322 (exit 2). | Valid Playwright neighbor and the existing browser tests pass (exit 0). | Compilation does not establish runtime behavior; packaged-resource journeys remain required. |
+| `AGENTS.md` keeps secrets/API requests on the server and the preview host out of the shipped widget; the Vite build had no boundary guard. Disposable network/environment access, aliased transitive UI-to-server imports and preview imports all built successfully without a guard. | `scripts/widget-boundary.ts`, attached to production Vite builds before transpilation; checks reached project modules and static import specifiers. | `bun run build`; negative/positive fixtures in `bun run test scripts/widget-boundary.test.ts` (both in local verification and CI) | Rejects six browser network API forms, four server environment forms, an aliased transitive server import, three preview import forms, four server-only import forms and a computed import path; diagnostics identify the rejected module or file/line and the supported server/bridge alternative. | Shared UI/domain modules, App bridge method names, built-in Vite flags, recorded text, erased types and unreached preview/server files pass. The unchanged application builds. | First-party syntactic enforcement, not third-party dependency auditing or arbitrary data-flow analysis. Obfuscated/computed property access and secrets embedded as ordinary literal data are not covered. |
+| `AGENTS.md` requires only `widget.html` in the production resource. Disposable `index.html` and multi-entry builds succeeded with the original build setup. | The same Vite guard requires the sole production input to resolve to `apps/mcp-ui/widget.html`. | `bun run build`; the same fixture suite | Preview-only and widget-plus-preview inputs are rejected before bundling. | The production widget input passes; Vite development remains available to the browser journeys. | Exact MCP embedding and host behavior still require protocol/browser proof. |
+
+The fixture suite runs real Vite builds in temporary directories, with no remote requests
+and no production-source mutation. It contains **22** checks: 21 rejected bad cases and
+one valid neighboring contribution. For the network/environment, transitive server,
+preview-import and input cases, each fixture also builds successfully with the guard
+disabled, demonstrating the original enforcement gap. Only the fixture uses that switch;
+the project build always installs the guard. Built-in/SDK imports are rejected before
+resolution and have no unguarded-build claim.
+
+The guard is included in Turbo's global cache inputs, following the earlier shared-source
+cache correction. A disposable guard edit changes every build task's cache key; restoring
+the original guard restores the original keys. GitHub CI already runs `bun run verify`, so
+both production enforcement and guard regressions execute there without a separate
+workflow or deployment step.
+
+Validation environment: macOS, Bun **1.4.0**, Node **24.21.0**, frozen committed lockfile.
+Observed results: `bun run verify` passes strict checking, the production build, **54**
+Vitest checks (32 existing domain/adapter/protocol plus 22 environment guards), and all
+**eight** local packaged-resource browser journeys. Application-source and HTML checksums
+match the baseline. These results do not establish hosted protocol, live DVSA, or installed
+ChatGPT behavior; the historical hosted evidence above remains separate.
