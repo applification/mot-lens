@@ -1,11 +1,11 @@
 # Connect MOT Lens to ChatGPT
 
-MCP endpoint: **https://mot-lens.web3-blog.workers.dev/mcp**.
+MCP endpoint: **https://mot-lens.applification.net/mcp**.
 Transport: Streamable HTTP. Authentication: **None** for the public, read-only endpoint.
 DVSA developer credentials stay server-side; users do not supply them to ChatGPT.
 
-The reachable endpoint currently supports the explicitly fictional sample. Official vehicle
-lookups require the operator to configure DVSA credentials. This is a developer connection,
+The reachable endpoint supports official DVSA vehicle lookups and an explicitly fictional
+sample. Hosted live access was verified on 19 October 2026. This is a developer connection,
 not approved public-directory distribution. Actual ChatGPT installation was not verified:
 the available browser session was signed out.
 

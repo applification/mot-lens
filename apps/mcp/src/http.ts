@@ -3,23 +3,24 @@ import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/
 import { createMotServer } from './server';
 import type { VehicleService } from './dvsa';
 import { BodyTooLarge, readBoundedBody } from './body';
+import { setupPage } from './setup-page';
 
 export function createHttpApp({ service, html, mode, requestPermit, widgetDomain, verificationToken, build = 'development' }: {
   service: Pick<VehicleService, 'lookup'>; html: string; mode: 'sample' | 'live'; widgetDomain?: string; build?: string; verificationToken?: string;
   requestPermit?: (request: Request) => Promise<boolean>;
 }) {
   const app = new Hono();
-  app.get('/', c => c.json({ name: 'MOT Lens', description: 'A free, open-source MCP App by Applification.', mcp: '/mcp', mode, source: 'https://github.com/rufushudson/mot-lens' }));
+  app.get('/', c => c.html(setupPage));
   app.get('/health', c => c.json({ status: 'ok', app: 'mot-lens', version: '0.1.0', mode, build }));
   app.get('/.well-known/openai-apps-challenge', c => verificationToken ? c.text(verificationToken) : c.notFound());
-  app.get('/privacy', c => c.text('MOT Lens by Applification. No user accounts, payments, analytics or model API calls. Real registrations are sent to DVSA to retrieve public MOT history. Vehicle responses and OAuth tokens are cached in server memory. Responses may be reused for 15 minutes, with at most 256 entries; expired entries can remain in memory until replacement, capacity eviction or process loss. IP addresses are used for rate limiting; infrastructure providers may retain security/access logs. Registration, token and vehicle payloads are not deliberately logged by this app. ChatGPT processes conversation data under its own policies. Fictional sample lookups do not contact DVSA. Source: https://github.com/rufushudson/mot-lens. Privacy contact: dave@applification.net.'));
-  app.get('/terms', c => c.text('MOT Lens is a free open-source record viewer by Applification. Official data source: DVSA MOT History API. Contains public sector information licensed under the Open Government Licence v3.0. Records have coverage limits and may contain errors; retrieval/cache age is shown. MOT results describe a recorded test, not current roadworthiness, a mechanical diagnosis or a buying recommendation. Sample data is fictional. No endorsement by DVSA or OpenAI is implied. Code is MIT licensed: https://github.com/rufushudson/mot-lens.'));
+  app.get('/privacy', c => c.text('MOT Lens by Applification. No user accounts, payments, analytics or model API calls. Real registrations are sent to DVSA to retrieve public MOT history. Vehicle responses and OAuth tokens are cached in server memory. Responses may be reused for 15 minutes, with at most 256 entries; expired entries can remain in memory until replacement, capacity eviction or process loss. IP addresses are used for rate limiting; infrastructure providers may retain security/access logs. Registration, token and vehicle payloads are not deliberately logged by this app. Your AI host, such as ChatGPT or Claude, processes conversation data under its own policies. Fictional sample lookups do not contact DVSA. Source: https://github.com/rufushudson/mot-lens. Privacy contact: dave@applification.net.'));
+  app.get('/terms', c => c.text('MOT Lens is a free open-source record viewer by Applification. Official data source: DVSA MOT History API. Contains public sector information licensed under the Open Government Licence v3.0. Records have coverage limits and may contain errors; retrieval/cache age is shown. MOT results describe a recorded test, not current roadworthiness, a mechanical diagnosis or a buying recommendation. Sample data is fictional. No endorsement by DVSA, OpenAI or Anthropic is implied. Code is MIT licensed: https://github.com/rufushudson/mot-lens.'));
   app.all('/mcp', async c => {
     const origin = c.req.header('origin');
     if (origin) {
       let allowed = false;
       // Incoming Host/URL is caller-controlled, so it cannot confer origin trust.
-      try { const u = new URL(origin); allowed = origin === u.origin && (['https://chatgpt.com', 'https://chat.openai.com'].includes(origin) || (['http:', 'https:'].includes(u.protocol) && ['127.0.0.1', 'localhost'].includes(u.hostname))); } catch { /* rejected below */ }
+      try { const u = new URL(origin); allowed = origin === u.origin && (['https://chatgpt.com', 'https://chat.openai.com', 'https://claude.ai'].includes(origin) || (['http:', 'https:'].includes(u.protocol) && ['127.0.0.1', 'localhost'].includes(u.hostname))); } catch { /* rejected below */ }
       if (!allowed) return c.json({ error: 'Origin not permitted' }, 403);
       c.header('Access-Control-Allow-Origin', origin); c.header('Vary', 'Origin');
       c.header('Access-Control-Allow-Headers', c.req.header('access-control-request-headers') ?? 'Content-Type, Accept, MCP-Protocol-Version, Mcp-Session-Id, Mcp-Method, Mcp-Name');

@@ -1,6 +1,6 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
   "mcpServers": {
-    "mot-lens": { "type": "streamable-http", "url": "https://mot-lens.web3-blog.workers.dev/mcp" }
+    "mot-lens": { "type": "streamable-http", "url": "https://mot-lens.applification.net/mcp" }
   }
 }

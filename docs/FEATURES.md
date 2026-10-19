@@ -2,6 +2,7 @@
 
 | Feature | Stable control | Observed state / verification |
 | --- | --- | --- |
+| Public connection instructions | `GET /` | ChatGPT/Claude setup, copyable endpoint and clipboard fallback; `tests/setup.spec.ts` |
 | Deployment identity | `bun run control doctor` | Health mode/build + MCP initialization/tool discovery |
 | Headless lookup | `bun run control lookup "AB12 CDE"` | Typed report or explicit error; no sample substitution |
 | Fictional report | `bun run control sample` | `provenance.kind=sample`, nine records, original wording |

@@ -38,6 +38,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.0",
+    "miniflare": "5.20261006.1-alpha",
     "sharp": "^0.35.5",
     "tsx": "^4.20.0",
     "turbo": "^2.8.0",

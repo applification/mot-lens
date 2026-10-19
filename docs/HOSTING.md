@@ -1,19 +1,25 @@
 # Hosting MOT Lens
 
-Current MCP endpoint: **https://mot-lens.web3-blog.workers.dev/mcp**.
-[Health](https://mot-lens.web3-blog.workers.dev/health), [privacy](https://mot-lens.web3-blog.workers.dev/privacy)
-and [terms](https://mot-lens.web3-blog.workers.dev/terms) are public. `/` describes the service
-as JSON; it is not a consumer website. The MCP resource contains the interactive UI.
+Current MCP endpoint: **https://mot-lens.applification.net/mcp**.
+[Health](https://mot-lens.applification.net/health), [privacy](https://mot-lens.applification.net/privacy)
+and [terms](https://mot-lens.applification.net/terms) are public. `/` describes the service
+through a setup page for ChatGPT and Claude. The MCP resource contains the interactive vehicle report.
 
-The initial deployment is sample-only. The real adapter is present but no DVSA credentials
-were available. Real lookups return `NOT_CONFIGURED`; only explicit sample requests show fiction.
+The hosted deployment supports live DVSA lookups, verified on 19 October 2026. A deployment
+without all five DVSA settings returns `NOT_CONFIGURED`; only explicit sample requests show fiction.
+
+The custom domain is declared in `wrangler.jsonc`. Wrangler attaches it to this Worker and
+Cloudflare manages DNS and TLS. The original `https://mot-lens.web3-blog.workers.dev/mcp`
+remains available as an alias. Both addresses serve the same service and secrets.
 
 ## Deploy your own copy
 
 Use an existing Cloudflare account, then check its identity and choose an unused Worker name.
-Change `name`, unique rate-limit namespace ID and `WIDGET_DOMAIN` in `wrangler.jsonc` for your
-copy. Do not reuse another deployment's bindings/verification challenge. No custom domain is
-required for the developer endpoint. Do not change an account's shared workers.dev subdomain.
+Change `name`, unique rate-limit namespace ID, `WIDGET_DOMAIN` and the custom-domain `routes`
+in `wrangler.jsonc` for your copy; remove `routes` for a workers.dev-only deployment. Update
+the setup page's public server URL too. Do not reuse another deployment's bindings/verification
+challenge. No custom domain is required for the developer endpoint. Do not change an account's
+shared workers.dev subdomain.
 
 ```sh
 bun install --frozen-lockfile
@@ -80,13 +86,13 @@ DVSA secrets disables live lookup while retaining the sample. Local `.env` is in
 ## Verify the public target
 
 ```sh
-MOT_LENS_ENDPOINT=https://mot-lens.web3-blog.workers.dev/mcp bun run control doctor
-MOT_LENS_ENDPOINT=https://mot-lens.web3-blog.workers.dev/mcp bun run control sample
-MOT_LENS_ENDPOINT=https://mot-lens.web3-blog.workers.dev/mcp bun run control resource
-MOT_LENS_BROWSER_ENDPOINT=https://mot-lens.web3-blog.workers.dev/mcp bun run test:e2e
+MOT_LENS_ENDPOINT=https://mot-lens.applification.net/mcp bun run control doctor
+MOT_LENS_ENDPOINT=https://mot-lens.applification.net/mcp bun run control sample
+MOT_LENS_ENDPOINT=https://mot-lens.applification.net/mcp bun run control resource
+MOT_LENS_BROWSER_ENDPOINT=https://mot-lens.applification.net/mcp bun run test:e2e
 ```
 
 For manual browser verification, use the local development host with its explicit endpoint:
-`http://127.0.0.1:5173/?endpoint=https%3A%2F%2Fmot-lens.web3-blog.workers.dev%2Fmcp`.
+`http://127.0.0.1:5173/?endpoint=https%3A%2F%2Fmot-lens.applification.net%2Fmcp`.
 This loads the public server's built resource and tools through the standard bridge. It is
 hosted MCP/UI proof in a development host, not installed ChatGPT proof.

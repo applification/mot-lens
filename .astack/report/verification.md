@@ -1,5 +1,44 @@
 # MOT Lens delivery evidence
 
+19 October custom-domain configuration: `mot-lens.applification.net` is the primary setup
+and MCP host. The active `applification.net` zone was confirmed in the Worker account; no
+Worker domain or authoritative DNS record occupied this hostname before configuration.
+Wrangler declares a Custom Domain and preserves the workers.dev alias. Current connection
+guides, setup URL, plugin manifests and UI-domain metadata use the new hostname.
+The observations below retain the addresses and builds actually used for those checks.
+
+19 October setup page: `/` now serves public connection instructions for ChatGPT and Claude,
+with a copyable canonical MCP URL, manual clipboard fallback, official host guides and starter
+prompts. The vehicle UI remains exclusively an MCP resource. The exact Claude origin is
+permitted; lookalike domains and attacker-controlled matched Host/Origin remain rejected.
+Instructions were checked against the linked official host documentation on 19 October.
+`bun run verify` passes the production build, strict TypeScript, **57** domain/adapter/protocol/
+runtime checks and **ten** local browser journeys (eight packaged-report, two setup-page).
+Worker dry-run and desktop visual inspection pass. Installed ChatGPT and Claude are unverified.
+
+19 October live activation: all five hosted secrets are configured. The first hosted lookup
+returned `UPSTREAM_UNAVAILABLE` before contacting DVSA because Cloudflare rejects the Fetch
+redirect mode `error`. Miniflare reproduced the runtime `TypeError`; all three new adapter
+runtime cases failed against the original code and passed after both requests used `manual`.
+Redirect responses remain errors, and fixture checks prove credentials never reach a redirect
+destination. Miniflare is pinned to the version already used by the committed Wrangler dependency.
+
+`bun run verify` passes the production build, strict check, **57** domain/adapter/protocol/runtime
+checks and **eight** local packaged-resource browser journeys. Worker dry-run passes. The repaired
+deployment is version `da9230cb-d7db-4329-aeeb-d0296889363e`, build
+`b10d5c6faa78d9ff675d9bb0541a59e60f2c80a8+dvsa-redirect-fix` (working-tree repair on that commit).
+Previous version with the same five secrets: `8b02e0c5-2c3a-4dfa-a6a4-3c1925c47182`.
+Hosted protocol/resource checks and all **eight** packaged-resource browser journeys pass.
+
+The root checkout's ignored `.env` was loaded directly without copying or displaying secrets.
+A live owner-supplied vehicle returned nine MOT tests locally and through hosted MCP. Both
+local and hosted record comparisons assert every original date, reading, unit, result and
+defect matches DVSA. Immediate repeated hosted lookup reused the same retrieval time and
+records. The live packaged UI rendered the vehicle and selecting its latest test updated
+the development host context with the real registration, DVSA provenance and selected record.
+Live records and credentials are not retained in this report. Actual installed ChatGPT behavior
+and coverage of all DVSA variants remain unverified. Earlier evidence below is historical.
+
 10 October review follow-up: `bun run verify` passes the production build, strict check,
 **32** domain/adapter/protocol checks and **eight** local packaged-resource browser journeys.
 Worker dry-run also passes. [Correction evidence](corrections.md) records baseline rejection,

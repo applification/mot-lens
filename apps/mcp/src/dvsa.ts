@@ -57,7 +57,7 @@ export class DvsaClient {
       const response = await (this.options.fetch ?? fetch)(c.DVSA_TOKEN_URL, {
         method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ grant_type: 'client_credentials', client_id: c.DVSA_CLIENT_ID,
-          client_secret: c.DVSA_CLIENT_SECRET, scope: c.DVSA_SCOPE }), signal: AbortSignal.timeout(8000), redirect: 'error',
+          client_secret: c.DVSA_CLIENT_SECRET, scope: c.DVSA_SCOPE }), signal: AbortSignal.timeout(8000), redirect: 'manual',
       });
       if (response.status === 429) {
         const supplied = Number(response.headers.get('retry-after') ?? 60);
@@ -91,7 +91,7 @@ export class DvsaClient {
           this.nextRequestAt = this.now() + 350;
           const response = await (this.options.fetch ?? fetch)(`https://history.mot.api.gov.uk/v1/trade/vehicles/registration/${encodeURIComponent(registration)}`, {
             headers: { Authorization: `Bearer ${token}`, 'X-API-Key': this.options.credentials.DVSA_API_KEY, Accept: 'application/json' },
-            signal: AbortSignal.timeout(8000), redirect: 'error',
+            signal: AbortSignal.timeout(8000), redirect: 'manual',
           });
           if (response.status === 403) {
             const detail = errorBodySchema.safeParse(await this.json(response).catch(() => ({})));

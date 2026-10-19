@@ -4,7 +4,8 @@ Checked against the [official API specification](https://documentation.history.m
 [authentication](https://documentation.history.mot.api.gov.uk/mot-history-api/authentication/),
 [registration](https://documentation.history.mot.api.gov.uk/mot-history-api/register/) and
 [rate limits](https://documentation.history.mot.api.gov.uk/mot-history-api/rate-limits/) on 9 October 2026.
-The live integration remains unverified until issued credentials are available.
+Issued authentication and an owner-supplied vehicle were verified locally and through the
+hosted MCP endpoint on 19 October 2026. This does not establish coverage of every vehicle variant.
 
 The current endpoint is `GET https://history.mot.api.gov.uk/v1/trade/vehicles/registration/{registration}`.
 It returns one vehicle object, not the legacy array. The adapter validates the current
