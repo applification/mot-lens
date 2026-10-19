@@ -14,7 +14,7 @@ export async function observe(endpoint: string, request: typeof fetch = timedFet
   endpointSchema.parse(endpoint);
   const identityResponse = await request(new URL('/health', endpoint)); assert.equal(identityResponse.status, 200);
   const health = healthSchema.parse(await identityResponse.json());
-  const client = new Client({ name: 'mot-lens-hosted-verification', version: PRODUCT.version });
+  const client = new Client({ name: `${PRODUCT.name}-hosted-verification`, version: PRODUCT.version });
   try {
     await client.connect(new StreamableHTTPClientTransport(new URL(endpoint), { fetch: request }));
     const server = z.object({ name: z.literal('mot-lens'), version: versionSchema }).parse(client.getServerVersion());

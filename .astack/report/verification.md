@@ -1,5 +1,31 @@
 # MOT Lens delivery evidence
 
+## Release tooling and personal host observations on 19 October 2026
+
+Local release checks pass with Node 24.21.0 and Bun 1.4.0. The implementation passes strict
+TypeScript and 71 domain, adapter, protocol, runtime and release tests. The ten packaged browser
+journeys pass. New captures use ignored `test-results/`; historical evidence below is unchanged.
+Both production and staging Wrangler dry runs pass without cloud credentials or deployment.
+The version-only Git fixture changes both widget/embedding Turbo keys and verifies actual MCP,
+health, widget and emitted manifest identities. Archive tests cover deterministic bytes,
+malformed manifests/ZIPs, wrong endpoints/version, missing assets and invalid image content.
+CLI tests reject dirty source and mismatched production tags before build or cloud operations.
+
+The root agent separately observed a signed-in personal ChatGPT developer connection against
+production version `0.1.0`, build `51885bb98830a364cf70d71e89060d3d4b909f20`.
+Sample rendering, expansion, failed-test selection and Explain into the conversation worked.
+A live owner lookup matched the three DVSA tests in the direct/hosted comparison.
+The host refused three unsupported requests and rejected invalid input without fiction substitution.
+The host displayed `INVALID_ARGUMENT` for invalid input; this is not a claim about the server's typed code.
+
+CSP enforcement was off. Strict-CSP equivalence, actual-host themes/mobile coverage and public
+directory acceptance remain unverified. Publisher verification and public submission are parked.
+Private conversation links, registrations, raw records and live screenshots are not retained here.
+The sample recording is incomplete submission material. See [remaining inputs](../../docs/SUBMISSION.md).
+This release-tooling implementation has not been deployed. The dated observations below remain history.
+
+## Earlier observations
+
 19 October custom-domain configuration: `mot-lens.applification.net` is the primary setup
 and MCP host. The active `applification.net` zone was confirmed in the Worker account; no
 Worker domain or authoritative DNS record occupied this hostname before configuration.
@@ -93,6 +119,7 @@ Evidence PNGs under `evidence/` are real captures of the built MCP UI: compact l
 expanded original failure, dark with table/keyboard selection and mobile. `design/mF32N.png`
 exports the pre-implementation Pen direction. These are not ChatGPT screenshots.
 
-Reproduce local: `bun run verify`. Reproduce hosted protocol after building:
+Reproduce local: `bun run verify`. The earlier hosted check used
 `bun run verify:hosted https://mot-lens.web3-blog.workers.dev/mcp`.
-Reproduce hosted UI: set `MOT_LENS_BROWSER_ENDPOINT` to that endpoint, then `bun run test:e2e`.
+Current exact-identity checks use the prepared artifact and explicit target in
+[the release guide](../../docs/RELEASING.md). Reproduce hosted UI: set `MOT_LENS_BROWSER_ENDPOINT` to that endpoint, then `bun run test:e2e`.

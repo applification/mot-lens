@@ -15,12 +15,12 @@ function PreviewHost() {
   const [generation, setGeneration] = useState(0);
   useEffect(() => {
     let active = true; let bridge: AppBridge | undefined;
-    const client = new Client({ name: 'mot-lens-development-host', version: PRODUCT.version }); clientRef.current = client;
+    const client = new Client({ name: `${PRODUCT.name}-development-host`, version: PRODUCT.version }); clientRef.current = client;
     const start = async () => {
       const endpoint = new URLSearchParams(location.search).get('endpoint') ?? 'http://127.0.0.1:8787/mcp';
       await client.connect(new StreamableHTTPClientTransport(new URL(endpoint)));
       if (!active || !frame.current?.contentWindow) return;
-      bridge = new AppBridge(client, { name: 'MOT Lens development preview (not ChatGPT)', version: PRODUCT.version },
+      bridge = new AppBridge(client, { name: `${PRODUCT.title} development preview (not ChatGPT)`, version: PRODUCT.version },
         { serverTools: {}, openLinks: {}, updateModelContext: {}, message: {}, logging: {} },
         { hostContext: { theme: 'light', displayMode: 'inline', availableDisplayModes: ['inline', 'fullscreen'] } });
       bridgeRef.current = bridge;

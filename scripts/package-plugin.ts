@@ -41,13 +41,15 @@ function checkIdentity(plugin: Plugin, mcp: z.infer<typeof mcpSchema>, expected:
   assert.equal(mcp.mcpServers['mot-lens'].url, expected.endpoint, 'Plugin ZIP must point at production');
 }
 async function checkImage(bytes: Uint8Array, path: string, plugin: Plugin) {
-  const icon = !plugin.extensions['com.openai'].interface.screenshots.includes(`./${path}`);
+  const ui = plugin.extensions['com.openai'].interface;
+  const icon = [ui.composerIcon, ui.composerIconDark, ui.logo, ui.logoDark].includes(`./${path}`);
   assert.ok(bytes.length > 0 && bytes.length <= (icon ? 1 : 5) * 1024 * 1024, `Listing image size exceeds limit: ${path}`);
   const image = sharp(bytes, { limitInputPixels: 4096 * 4096 });
   const metadata = await image.metadata();
   assert.ok(metadata.format === 'png' || metadata.format === 'jpeg', `Unsupported listing image format: ${path}`);
   assert.ok(metadata.width && metadata.height && metadata.width <= 4096 && metadata.height <= 4096, `Invalid image dimensions: ${path}`);
-  assert.ok(icon ? metadata.width === metadata.height && metadata.width >= 128 : metadata.width >= 320 && metadata.height >= 320, `Invalid listing image dimensions: ${path}`);
+  if (icon) assert.ok(metadata.width === metadata.height && metadata.width >= 128, `Invalid icon dimensions: ${path}`);
+  if (ui.screenshots.includes(`./${path}`)) assert.ok(metadata.width >= 320 && metadata.height >= 320, `Invalid screenshot dimensions: ${path}`);
   assert.equal(metadata.format === 'png', path.endsWith('.png'), `Image extension differs from its content: ${path}`);
   await image.stats();
 }

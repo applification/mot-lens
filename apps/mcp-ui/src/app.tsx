@@ -21,7 +21,7 @@ export function BridgeApp() {
   const resetContext = useRef<(reason: string) => SessionScope | undefined>(() => undefined);
   useEffect(() => {
     let active = true;
-    const app = new App({ name: 'MOT Lens', version: PRODUCT.version }, {}, { autoResize: true });
+    const app = new App({ name: PRODUCT.title, version: PRODUCT.version }, {}, { autoResize: true });
     const session = new ReportSession(app); appRef.current = app; sessionRef.current = session;
     const clear = (reason: string) => {
       setSelectedId(null); setActionError(null); setExplaining(false);

@@ -13,7 +13,7 @@ function toolResult(outcome: Outcome) {
 }
 
 export function createMotServer({ service, html, widgetDomain }: { service: Pick<VehicleService, 'lookup'>; html: string; widgetDomain?: string }) {
-  const server = new McpServer({ name: 'mot-lens', version: PRODUCT.version, title: 'MOT Lens' }, { instructions: INSTRUCTIONS });
+  const server = new McpServer({ name: PRODUCT.name, version: PRODUCT.version, title: PRODUCT.title }, { instructions: INSTRUCTIONS });
   registerAppResource(server, 'mot-lens-report', RESOURCE_URI, { title: 'MOT Lens vehicle report',
     description: 'Accessible MOT test history, mileage and evidence-linked observations.', }, async () => ({
     contents: [{ uri: RESOURCE_URI, mimeType: RESOURCE_MIME_TYPE, text: html,

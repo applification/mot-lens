@@ -11,10 +11,8 @@ The report provides a compact vehicle summary, an interactive mileage chart, chr
 Use Bun 1.4.0 and Node 24+. The workspace uses React/Vite, TypeScript, Zod and the current MCP Apps bridge.
 
 ```sh
-git clone https://github.com/rufushudson/mot-lens.git
+git clone https://github.com/applification/mot-lens.git
 cd mot-lens
-# Until the implementation PR is merged:
-git switch feat/mot-lens
 bun install --frozen-lockfile
 bun run build
 bun run dev
@@ -37,9 +35,13 @@ bun run verify
 
 Open the [public setup page](https://mot-lens.applification.net/) for ChatGPT and Claude instructions and the copyable MCP server URL. Detailed [ChatGPT](docs/CHATGPT.md) and [Claude](docs/CLAUDE.md) connection guides cover host setup. [Submission materials](docs/SUBMISSION.md) include a draft plugin package, review cases and recording script. A reachable developer endpoint does not mean approved public distribution.
 
+Use the [release guide](docs/RELEASING.md) to prepare a deterministic versioned ZIP, verify staging and explicitly deploy production. Root `package.json` owns the product version and repository URL.
+
 See [DVSA integration and accuracy](docs/DVSA.md), [environment variables](docs/ENVIRONMENT.md), [architecture](docs/ARCHITECTURE.md), [feature controls](docs/FEATURES.md) and [verification evidence](.astack/report/verification.md).
 
-The hosted deployment supports live DVSA lookups. Authentication and an owner-supplied vehicle were verified on 19 October 2026. Automated tests also exercise explicit fixtures, the MCP protocol, Cloudflare's local runtime and the packaged app through the standard bridge. Actual ChatGPT installation remains a separate verification step.
+The hosted deployment supports live DVSA lookups, verified on 19 October 2026. A personal ChatGPT developer connection also passed sample selection and explanation, a three-test live comparison, unsupported requests and invalid input on that date. CSP enforcement was off. Strict-CSP and actual-host theme/mobile acceptance remain unverified. Public submission and publisher verification are parked. See the [dated acceptance limits](docs/SUBMISSION.md#personal-chatgpt-observations-on-19-october-2026).
+
+Automated tests exercise explicit fixtures, the MCP protocol, Cloudflare's local runtime and the packaged app through the standard bridge.
 
 ## Licence and scope
 

@@ -9,6 +9,10 @@ Install/build: `bun install --frozen-lockfile && bun run build`.
 Start: `bun run dev` (MCP 127.0.0.1:8787; development host 127.0.0.1:5173).
 Control: `bun run control doctor`, `tools`, `sample`, `lookup REGISTRATION`, `resource`.
 Set `MOT_LENS_ENDPOINT` to target a hosted deployment explicitly.
+Release: `bun run release check`, `prepare`, `deploy --target staging|production --artifact PATH`,
+`verify --target staging|production --artifact PATH`. See `docs/RELEASING.md`.
+Root `package.json` owns product version/repository; plugin manifest version is emitted.
+Production stays top-level `mot-lens`; `env.staging` is isolated and forces sample mode.
 Verification: `bun run verify`; browser installation: `bunx playwright install chromium`.
 The production build enforces widget-only input and checks reached project modules for
 server/preview imports, browser network APIs and server environment access. Strict checking
@@ -17,7 +21,8 @@ Browser tests default to the exact production resource returned by MCP.
 Source HMR preview is opt-in at `http://127.0.0.1:5173/?source=dev`.
 
 Design: `.astack/report/design/mF32N.png`, exported from the Pen direction created before UI implementation.
-Evidence: `.astack/report/evidence/`, final release report `.astack/report/verification.md`.
+Historical evidence: `.astack/report/evidence/`; new captures: ignored `test-results/`.
+Release artifacts: ignored `dist/release/VERSION/`; report: `.astack/report/verification.md`.
 Contract: `.astack/report/contract.md`. Hosting plan: `.astack/cloud/transition.md`.
 Feature/control map: `docs/FEATURES.md`. Domain glossary: `docs/GLOSSARY.md`.
 

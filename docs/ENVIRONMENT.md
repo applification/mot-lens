@@ -8,12 +8,16 @@
 | `DVSA_TOKEN_URL` | Server configuration/secret | Exact issued tenant-specific HTTPS Microsoft Entra token URL |
 | `DVSA_SCOPE` | Server configuration/secret | Exact DVSA-issued OAuth scope |
 | `PORT` | Node only | Default 8787; preview expects 8787 |
-| `BUILD_ID` | Worker variable | Deployed source revision shown by health |
+| `BUILD_ID` | Worker variable injected by release CLI | Full 40-character source SHA; local/default builds report `development` |
 | `WIDGET_DOMAIN` | Worker variable | Unique HTTPS UI origin for host isolation/public review |
+| `PUBLIC_ENDPOINT` | Worker variable | Validated public `/mcp` URL for health and setup links |
+| `DATA_MODE` | Worker variable | Production `live` permits configured DVSA access; staging `sample` always disables it |
 | `OPENAI_VERIFICATION_TOKEN` | Worker secret, optional | Exact portal-issued plaintext domain challenge |
 | `MOT_LENS_ENDPOINT` | Control CLI only | Explicit target, default local `/mcp` |
 
-All five DVSA fields are required to enable live mode. Missing/invalid configuration keeps
+All five DVSA fields and a live-enabled target are required to enable live mode.
+Staging ignores these credentials and suppresses `OPENAI_VERIFICATION_TOKEN`.
+Missing or invalid DVSA configuration keeps
 real lookup unavailable and reports sample mode. The token URL is restricted to HTTPS
 `login.microsoftonline.com`, preventing credential POSTs to arbitrary endpoints.
 

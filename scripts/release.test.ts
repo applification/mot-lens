@@ -1,9 +1,9 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
-import { spawnSync } from 'node:child_process';
+import sharp from 'sharp';
 import { afterEach, describe, expect, it } from 'vitest';
 import { packagePlugin, validatePluginZip } from './package-plugin';
 import { cleanSource, readProject, sha256 } from './release-model';
@@ -62,11 +62,13 @@ describe('plugin release archive', () => {
   });
   it('rejects missing ZIP assets, unexpected paths and invalid image content', async () => {
     const path = await fixture(); const expected = await identity(path); const bytes = await packagePlugin(path);
+    const nonsquare = await sharp({ create: { width: 128, height: 129, channels: 4, background: '#ffffff' } }).png().toBuffer();
     for (const change of [
       (files: Record<string, Uint8Array>) => { delete files['assets/report.png']; },
       (files: Record<string, Uint8Array>) => { files['../secret'] = strToU8('no'); },
       (files: Record<string, Uint8Array>) => { files['assets/extra.png'] = files['assets/icon.png']!; },
       (files: Record<string, Uint8Array>) => { files['assets/icon.png'] = strToU8('not an image'); },
+      (files: Record<string, Uint8Array>) => { files['assets/icon.png'] = nonsquare; },
     ]) await expect(validatePluginZip(modifyZip(bytes, change), expected)).rejects.toThrow();
   });
   it('rejects a wrong product version in the actual ZIP', async () => {
