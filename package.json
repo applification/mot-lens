@@ -47,5 +47,6 @@
     "vite-plugin-singlefile": "^2.3.0",
     "vitest": "^4.0.0",
     "wrangler": "4.149.0"
-  }
+  },
+  "repository": "https://github.com/applification/mot-lens"
 }

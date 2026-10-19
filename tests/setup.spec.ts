@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const setupUrl = new URL('/', process.env.MOT_LENS_BROWSER_ENDPOINT ?? 'http://127.0.0.1:8787/mcp').href;
-const endpoint = 'https://mot-lens.applification.net/mcp';
+const endpoint = process.env.MOT_LENS_BROWSER_ENDPOINT ?? 'http://127.0.0.1:8787/mcp';
 
 test('connection page explains both hosts, copies the public endpoint and fits mobile', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(setupUrl).origin });

@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
-import { makeReport, outcomeSchema, reportSummary, type Outcome } from '@mot-lens/domain';
+import { PRODUCT, makeReport, outcomeSchema, reportSummary, type Outcome } from '@mot-lens/domain';
 import { sampleVehicle } from '../../../packages/domain/src/sample';
 import type { VehicleService } from './dvsa';
 
@@ -13,7 +13,7 @@ function toolResult(outcome: Outcome) {
 }
 
 export function createMotServer({ service, html, widgetDomain }: { service: Pick<VehicleService, 'lookup'>; html: string; widgetDomain?: string }) {
-  const server = new McpServer({ name: 'mot-lens', version: '0.1.0', title: 'MOT Lens' }, { instructions: INSTRUCTIONS });
+  const server = new McpServer({ name: 'mot-lens', version: PRODUCT.version, title: 'MOT Lens' }, { instructions: INSTRUCTIONS });
   registerAppResource(server, 'mot-lens-report', RESOURCE_URI, { title: 'MOT Lens vehicle report',
     description: 'Accessible MOT test history, mileage and evidence-linked observations.', }, async () => ({
     contents: [{ uri: RESOURCE_URI, mimeType: RESOURCE_MIME_TYPE, text: html,

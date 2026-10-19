@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { AppBridge, PostMessageTransport } from '@modelcontextprotocol/ext-apps/app-bridge';
-import { makeReport, type RawVehicle } from '@mot-lens/domain';
+import { PRODUCT, makeReport, type RawVehicle } from '@mot-lens/domain';
 import './preview.css';
 
 // This is a development-only host: actual MCP HTTP calls, standard postMessage
@@ -15,12 +15,12 @@ function PreviewHost() {
   const [generation, setGeneration] = useState(0);
   useEffect(() => {
     let active = true; let bridge: AppBridge | undefined;
-    const client = new Client({ name: 'mot-lens-development-host', version: '0.1.0' }); clientRef.current = client;
+    const client = new Client({ name: 'mot-lens-development-host', version: PRODUCT.version }); clientRef.current = client;
     const start = async () => {
       const endpoint = new URLSearchParams(location.search).get('endpoint') ?? 'http://127.0.0.1:8787/mcp';
       await client.connect(new StreamableHTTPClientTransport(new URL(endpoint)));
       if (!active || !frame.current?.contentWindow) return;
-      bridge = new AppBridge(client, { name: 'MOT Lens development preview (not ChatGPT)', version: '0.1.0' },
+      bridge = new AppBridge(client, { name: 'MOT Lens development preview (not ChatGPT)', version: PRODUCT.version },
         { serverTools: {}, openLinks: {}, updateModelContext: {}, message: {}, logging: {} },
         { hostContext: { theme: 'light', displayMode: 'inline', availableDisplayModes: ['inline', 'fullscreen'] } });
       bridgeRef.current = bridge;

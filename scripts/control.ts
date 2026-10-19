@@ -1,11 +1,11 @@
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { z } from 'zod';
-import { outcomeSchema, reportSummary, selectedContext } from '@mot-lens/domain';
+import { PRODUCT, outcomeSchema, reportSummary, selectedContext } from '@mot-lens/domain';
 
 const [command = 'doctor', argument] = process.argv.slice(2);
 const endpoint = new URL(process.env.MOT_LENS_ENDPOINT ?? 'http://127.0.0.1:8787/mcp');
 if (!['doctor', 'tools', 'sample', 'lookup', 'resource'].includes(command)) throw new Error('Usage: bun run control doctor|tools|sample|lookup REGISTRATION|resource');
-const client = new Client({ name: 'mot-lens-control', version: '0.1.0' });
+const client = new Client({ name: 'mot-lens-control', version: PRODUCT.version });
 try {
   await client.connect(new StreamableHTTPClientTransport(endpoint));
   if (command === 'doctor') {
