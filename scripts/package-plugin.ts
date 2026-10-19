@@ -92,10 +92,10 @@ export async function packagePlugin(root: string) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const root = process.cwd(); const { metadata } = await readProject(root);
-  const output = join(root, 'dist/release', metadata.version, `mot-lens-${metadata.version}.zip`);
+  const root = process.cwd(); const { metadata, targets } = await readProject(root);
+  const output = join(root, 'dist/inspection', `mot-lens-${metadata.version}.zip`);
   const bytes = await packagePlugin(root);
   await mkdir(dirname(output), { recursive: true }); await writeFile(output, bytes);
-  await validatePluginZip(await readFile(output), { version: metadata.version, repository: metadata.repository, endpoint: 'https://mot-lens.applification.net/mcp' });
+  await validatePluginZip(await readFile(output), { version: metadata.version, repository: metadata.repository, endpoint: targets.production.endpoint });
   process.stdout.write(`${output}\n`);
 }

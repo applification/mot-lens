@@ -62,10 +62,10 @@ async function verify(artifact: ReleaseArtifact, target: DeploymentTarget, outpu
   assert.deepEqual(differences, [], 'Hosted deployment does not match the prepared artifact');
   return observation;
 }
-function cloud(root: string, target: DeploymentTarget, args: string[]) {
+export function cloud(root: string, target: DeploymentTarget, args: string[]) {
   return execFileSync('bun', ['x', '--no-install', 'wrangler', ...args, '--config', join(root, 'wrangler.jsonc'), '--env', target.kind === 'staging' ? 'staging' : ''], {
     cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 4 * 1024 * 1024,
-    env: { ...process.env, WRANGLER_SEND_METRICS: 'false', CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: 'false' },
+    env: { ...process.env, WRANGLER_CI_OVERRIDE_NAME: target.worker, WRANGLER_SEND_METRICS: 'false', CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: 'false' },
   });
 }
 

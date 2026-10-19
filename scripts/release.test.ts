@@ -4,9 +4,10 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import sharp from 'sharp';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { packagePlugin, validatePluginZip } from './package-plugin';
-import { cleanSource, readProject, sha256 } from './release-model';
+import { cleanSource, readProject, sha256, type DeploymentTarget } from './release-model';
+import { cloud } from './release';
 import { compareObservation, observe } from './verify-hosted';
 import { createHttpApp } from '../apps/mcp/src/http';
 import { VehicleService } from '../apps/mcp/src/dvsa';
@@ -15,7 +16,7 @@ import { artifactSchema } from './release-model';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const fixtures: string[] = [];
-afterEach(async () => { await Promise.all(fixtures.splice(0).map(path => rm(path, { recursive: true, force: true }))); });
+afterEach(async () => { vi.unstubAllEnvs(); await Promise.all(fixtures.splice(0).map(path => rm(path, { recursive: true, force: true }))); });
 async function fixture() {
   await mkdir(join(root, 'test-results'), { recursive: true });
   const path = await mkdtemp(join(root, 'test-results/release-')); fixtures.push(path);
@@ -29,6 +30,27 @@ async function identity(path: string) {
 function modifyZip(bytes: Uint8Array, change: (files: Record<string, Uint8Array>) => void) {
   const files = unzipSync(bytes); change(files); return zipSync(files);
 }
+
+describe.each<{ kind: DeploymentTarget['kind']; worker: string; conflict: string; mode: string }>([
+  { kind: 'staging', worker: 'mot-lens-staging', conflict: 'mot-lens', mode: 'sample' },
+  { kind: 'production', worker: 'mot-lens', conflict: 'mot-lens-staging', mode: 'live' },
+])('release cloud target $kind', ({ kind, worker, conflict, mode }) => {
+  it.each(['inherited', 'dotenv', 'both'])('preserves worker identity against %s overrides in a real Wrangler dry run', async source => {
+    const path = await fixture(); const { metadata, targets } = await readProject(path);
+    expect(JSON.parse(await readFile(join(root, 'node_modules/wrangler/package.json'), 'utf8')).version).toBe(metadata.devDependencies.wrangler);
+    await mkdir(join(path, 'apps/mcp/src'), { recursive: true });
+    await writeFile(join(path, 'apps/mcp/src/worker.ts'), 'export class DvsaGate {}\nexport default { fetch() { return new Response("release target fixture"); } };\n');
+    vi.stubEnv('WRANGLER_CI_OVERRIDE_NAME', source === 'dotenv' ? undefined : conflict);
+    if (source !== 'inherited') {
+      for (const file of ['.env', '.env.local', '.env.staging', '.env.staging.local']) await writeFile(join(path, file), `WRANGLER_CI_OVERRIDE_NAME=${conflict}\n`);
+    }
+    const outdir = join(path, 'dry-run');
+    const output = cloud(path, targets[kind], ['deploy', '--dry-run', '--outdir', outdir]);
+    expect(output).toContain('--dry-run: exiting now.');
+    expect(output).toContain(`("${mode}")`);
+    expect(await readFile(join(outdir, 'README.md'), 'utf8')).toContain(`worker "${worker}"`);
+  });
+});
 
 describe('plugin release archive', () => {
   it('packages committed assets deterministically without changing source files', async () => {
@@ -105,6 +127,18 @@ function cleanFixtureGit(path: string, change = false) {
 function cli(path: string, args: string[]) {
   return spawnSync(process.execPath, ['--import', 'tsx', join(root, 'scripts/release.ts'), ...args], { cwd: path, encoding: 'utf8', timeout: 20_000 });
 }
+async function preparedFixture() {
+  const path = await fixture();
+  await writeFile(join(path, '.gitignore'), 'dist/\nnode_modules/\norigin.git/\n');
+  await writeFile(join(path, 'bun.lock'), 'fixture lockfile');
+  const previous = cleanFixtureGit(path); const sourceSha = cleanFixtureGit(path, true);
+  const bytes = await packagePlugin(path); const { metadata } = await readProject(path);
+  const artifact = artifactSchema.parse({ version: metadata.version, sourceSha, plugin: { path: `mot-lens-${metadata.version}.zip`, sha256: sha256(bytes) }, widgetSha256: sha256('widget'), lockfileSha256: sha256('different lockfile'), toolchain: { node: process.version, bun: '1.4.0', wrangler: metadata.devDependencies.wrangler } });
+  const output = join(path, 'dist/release', metadata.version); await mkdir(output, { recursive: true });
+  await writeFile(join(output, artifact.plugin.path), bytes); await writeFile(join(output, 'release.json'), JSON.stringify(artifact));
+  await writeFile(join(output, 'SHA256SUMS'), `${artifact.plugin.sha256}  ${artifact.plugin.path}\n`);
+  return { path, previous, artifact, output };
+}
 describe('release CLI preconditions', () => {
   it('rejects invalid versions through the real CLI', async () => {
     const path = await fixture(); const metadata = JSON.parse(await readFile(join(path, 'package.json'), 'utf8'));
@@ -133,6 +167,26 @@ describe('release CLI preconditions', () => {
     const result = cli(path, ['deploy', '--target', 'production', '--artifact', 'dist/release.json']);
     expect(result.status).toBe(1); expect(result.stderr).toContain('does not point at'); expect(result.stdout).not.toContain('turbo');
   });
+  it.each(['missing', 'mismatched', 'lightweight', 'annotated'])('checks the exact published %s tag through a local bare origin', async published => {
+    const { path, previous, artifact, output } = await preparedFixture();
+    const git = (args: string[]) => execFileSync('git', args, { cwd: path, encoding: 'utf8', stdio: 'pipe' });
+    const tag = `v${artifact.version}`;
+    const publishedTag = published === 'missing' ? `archive/${tag}` : tag;
+    git(['-c', 'tag.gpgSign=false', 'tag', ...(published === 'annotated' ? ['-a', '-m', 'Published fixture'] : []), publishedTag, published === 'mismatched' ? previous : artifact.sourceSha]);
+    git(['clone', '--bare', path, join(path, 'origin.git')]);
+    git(['tag', '-d', publishedTag]);
+    git(['-c', 'tag.gpgSign=false', 'tag', tag, artifact.sourceSha]);
+    git(['remote', 'add', 'origin', join(path, 'origin.git')]);
+    await mkdir(join(path, 'node_modules/wrangler'), { recursive: true });
+    await cp(join(root, 'node_modules/wrangler/package.json'), join(path, 'node_modules/wrangler/package.json'));
+    expect(cleanSource(path)).toBe(artifact.sourceSha);
+    const result = cli(path, ['deploy', '--target', 'production', '--artifact', join(output, 'release.json')]);
+    expect(result.status).toBe(1);
+    if (published === 'missing') expect(result.stderr).toContain(`requires published tag ${tag} on origin`);
+    else if (published === 'mismatched') expect(result.stderr).toContain(`Published tag ${tag} on origin does not point at`);
+    else expect(result.stderr).toContain('Lockfile differs from the prepared artifact');
+    expect(result.stdout).not.toContain('turbo');
+  });
   it('checks a provided ZIP and refuses unknown options and target drift', async () => {
     const path = await fixture(); const bytes = await packagePlugin(path); const zip = join(path, 'plugin.zip'); await writeFile(zip, bytes);
     expect(cli(path, ['check', '--zip', zip]).status).toBe(0);
@@ -141,4 +195,22 @@ describe('release CLI preconditions', () => {
     await writeFile(join(path, 'wrangler.jsonc'), JSON.stringify(config));
     const result = cli(path, ['check']); expect(result.status).toBe(1); expect(result.stderr).toContain('separate Worker');
   });
+});
+
+it('standalone packaging writes an inspection ZIP without changing prepared release files', async () => {
+  const { path, artifact, output } = await preparedFixture();
+  const files = [artifact.plugin.path, 'release.json', 'SHA256SUMS'];
+  const before = await Promise.all(files.map(async file => sha256(await readFile(join(output, file)))));
+  const manifestPath = join(path, 'plugins/mot-lens/plugin.json');
+  const plugin = JSON.parse(await readFile(manifestPath, 'utf8'));
+  plugin.extensions['com.openai'].publication.release_notes += ' Updated for inspection.';
+  await writeFile(manifestPath, JSON.stringify(plugin));
+  const result = spawnSync(process.execPath, ['--import', 'tsx', join(root, 'scripts/package-plugin.ts')], { cwd: path, encoding: 'utf8', timeout: 20_000 });
+  expect(result.status, result.stderr).toBe(0);
+  expect(await Promise.all(files.map(async file => sha256(await readFile(join(output, file)))))).toEqual(before);
+  const inspection = join(path, 'dist/inspection', artifact.plugin.path);
+  expect(result.stdout.trim()).toBe(inspection);
+  const bytes = await readFile(inspection);
+  await validatePluginZip(bytes, await identity(path));
+  expect(sha256(bytes)).not.toBe(artifact.plugin.sha256);
 });

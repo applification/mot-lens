@@ -66,4 +66,11 @@ export function productionTag(root: string, artifact: ReleaseArtifact) {
   try { revision = git(root, ['rev-parse', '--verify', `refs/tags/${tag}^{commit}`]); }
   catch { throw new Error(`Production requires ${tag} pointing at ${artifact.sourceSha}`); }
   if (revision !== artifact.sourceSha) throw new Error(`Tag ${tag} does not point at the prepared source SHA`);
+  const ref = `refs/tags/${tag}`;
+  let published: string;
+  try { published = git(root, ['ls-remote', '--exit-code', 'origin', ref, `${ref}^{}`]); }
+  catch { throw new Error(`Production requires published tag ${tag} on origin pointing at ${artifact.sourceSha}`); }
+  const refs = published.split('\n').map(line => z.tuple([sourceShaSchema, z.enum([ref, `${ref}^{}`])]).parse(line.split(/\s+/)));
+  const remoteRevision = refs.find(([, name]) => name === `${ref}^{}`)?.[0] ?? refs.find(([, name]) => name === ref)?.[0];
+  if (remoteRevision !== artifact.sourceSha) throw new Error(`Published tag ${tag} on origin does not point at the prepared source SHA`);
 }

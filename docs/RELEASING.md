@@ -26,7 +26,8 @@ Source files, historical screenshots and Git tags stay unchanged.
 lockfile hash and toolchain. ZIP order and timestamps are deterministic.
 Focused Zod, archive and image checks do not claim full official JSON-schema validation.
 To inspect an existing ZIP, run `bun run release check --zip PATH`.
-`bun run package:plugin` only packages assets; use `release prepare` for release evidence.
+`bun run package:plugin` writes an inspection ZIP to `dist/inspection/mot-lens-VERSION.zip`.
+It leaves prepared release files unchanged. Use `release prepare` for release evidence.
 
 Set the artifact path for the following commands.
 
@@ -54,7 +55,8 @@ The plugin ZIP always points to production.
 Verification checks exact health, MCP initialization and widget versions, source SHA,
 widget SHA, UI origin, public endpoint and mode. It also checks the original sample,
 error, resource, policy, foreign-origin and body-limit behavior.
-It writes a target-specific report beside the artifact.
+It writes `dist/release/VERSION/verify-TARGET.json` in the current checkout,
+even when the supplied artifact is outside that directory.
 `bun run verify:hosted --target staging --artifact "$RELEASE_ARTIFACT"` is the same operation.
 An optional `--url` must equal the selected target's configured endpoint.
 
@@ -68,8 +70,9 @@ A GitHub source release does not submit the plugin to the public directory.
 
 ## Deploy production
 
-Production requires a clean checkout at the artifact SHA, `vVERSION` at that SHA, and
-that revision on `origin/main`. The command fetches `origin/main` before checking ancestry.
+Production requires a clean checkout at the artifact SHA, local and published origin
+`vVERSION` tags at that SHA, and that revision on `origin/main`.
+The command fetches `origin/main` before checking ancestry.
 It uses the top-level Worker configuration, not an `env.production` configuration.
 
 ```sh
@@ -95,7 +98,10 @@ bunx wrangler rollback PREVIOUS_VERSION_ID --env ""
 The CLI never rolls back automatically. It does not move tags.
 For staging history, use `bunx wrangler deployments list --env staging` and select the
 intended previous version before `bunx wrangler rollback VERSION_ID --env staging`.
-After rollback, verify against the matching prior source checkout and its artifact.
+After rollback to a release with prepared artifacts, verify against the matching prior
+source checkout and its artifact. The first rollback may predate the artifact format.
+For that revision, use its historical source controls and fresh health, MCP and resource
+observations. The new release verifier cannot verify a revision without a matching artifact.
 There is no application data to restore.
 
 ## Submit to the directory later
