@@ -2,12 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { createHttpApp } from '../src/http';
 import { VehicleService } from '../src/dvsa';
-import { outcomeSchema } from '@mot-lens/domain';
+import { PRODUCT, outcomeSchema } from '@mot-lens/domain';
 import { RESOURCE_URI } from '../src/server';
 import { serve } from '@hono/node-server';
 import { request } from 'node:http';
 
 describe('real MCP contract', () => {
+  it('reports canonical identity and the configured target without trusting the request host', async () => {
+    const endpoint = 'https://mot-lens-staging.web3-blog.workers.dev/mcp';
+    const app = createHttpApp({ service: new VehicleService({ client: null }), html: '', mode: 'sample', publicEndpoint: endpoint, widgetDomain: new URL(endpoint).origin, build: 'a'.repeat(40) });
+    const health = await (await app.request('https://attacker.invalid/health')).json();
+    expect(health).toMatchObject({ version: PRODUCT.version, endpoint, mode: 'sample', build: 'a'.repeat(40) });
+    const setup = await (await app.request('https://attacker.invalid/')).text();
+    expect(setup).toContain(`value="${endpoint}"`);
+    expect(setup).not.toContain('attacker.invalid');
+    const client = new Client({ name: 'identity-test', version: '1' });
+    await client.connect(new StreamableHTTPClientTransport(new URL(endpoint), { fetch: async (input, init) => app.fetch(new Request(input, init)) }));
+    try { expect(client.getServerVersion()).toMatchObject({ name: PRODUCT.name, version: PRODUCT.version }); }
+    finally { await client.close(); }
+  });
   it('rejects an attacker-controlled matched Host/Origin on the real loopback server', async () => {
     let lookups = 0;
     const app = createHttpApp({ service: new VehicleService({ client: { lookup: async registration => { lookups++; return { registration, make: 'EXAMPLE' }; } } }), html: '', mode: 'live' });

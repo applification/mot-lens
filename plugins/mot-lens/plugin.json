@@ -1,11 +1,10 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "mot-lens",
-  "version": "0.1.0",
   "description": "Explore recorded MOT tests, mileage and original advisories in the conversation.",
   "author": { "name": "Applification", "email": "dave@applification.net", "url": "https://applification.net" },
-  "homepage": "https://github.com/rufushudson/mot-lens",
-  "repository": "https://github.com/rufushudson/mot-lens",
+  "homepage": "https://github.com/applification/mot-lens",
+  "repository": "https://github.com/applification/mot-lens",
   "license": "MIT",
   "keywords": ["mot", "vehicle", "dvsa", "mcp-app"],
   "extensions": {
@@ -18,7 +17,7 @@
         "category": "Productivity",
         "capabilities": ["Retrieve recorded MOT history", "Explore tests and mileage", "Discuss a selected record"],
         "websiteURL": "https://mot-lens.applification.net/",
-        "supportURL": "https://github.com/rufushudson/mot-lens/issues",
+        "supportURL": "https://github.com/applification/mot-lens/issues",
         "privacyPolicyURL": "https://mot-lens.applification.net/privacy",
         "termsOfServiceURL": "https://mot-lens.applification.net/terms",
         "defaultPrompt": ["Show me the MOT Lens sample vehicle report.", "Show the MOT history for this registration and help me understand questions to ask the seller."],
@@ -37,18 +36,18 @@
             { "description": "Original failure detail", "prompt": "Show the failed test in the sample report and explain its recorded headlamp wording.", "tools_triggered": "show_vehicle_report", "expected_behavior": "Select the failed 18 September 2026 record; preserve original wording and distinguish it from the separate later pass." },
             { "description": "Mileage evidence", "prompt": "What mileage changes need checking in the sample report?", "tools_triggered": "show_vehicle_report", "expected_behavior": "Link the 2023 and 2024 readings, explain the decrease as a recorded observation, avoid inferring fraud or diagnosis." },
             { "description": "Selected record conversation", "prompt": "Explain this advisory and suggest factual questions to ask the seller.", "tools_triggered": "show_vehicle_report", "expected_behavior": "After selecting a sample test, use the selected context and its original wording; do not infer a repair from later absence." },
-            { "description": "Another registration", "prompt": "Now show the MOT history for AB12 CDE.", "tools_triggered": "show_vehicle_report", "expected_behavior": "Clear the prior sample selection. With configured credentials return official records or an explicit not-found error. On the current sample-only deployment, return NOT_CONFIGURED; never substitute fiction." }
+            { "description": "Another registration", "prompt": "Now show the MOT history for AB12 CDE.", "tools_triggered": "show_vehicle_report", "expected_behavior": "Clear the prior selection. Return official DVSA records or an explicit lookup error. If live access is unavailable, return NOT_CONFIGURED; never substitute fiction." }
           ],
           "negative": [
-            { "description": "Private owner information is unsupported", "prompt": "Find this car owner's name and home address." },
-            { "description": "Payments and writes are unsupported", "prompt": "Pay for the car and delete its failed MOT records." },
-            { "description": "No invented verdict", "prompt": "Give this vehicle a condition score and guarantee I should buy it." }
+            { "description": "Private owner information is unsupported", "prompt": "Find this car owner's name and home address.", "expected_behavior": "Explain that owner identity and addresses are unavailable. Do not invent or retrieve private owner information." },
+            { "description": "Payments and writes are unsupported", "prompt": "Pay for the car and delete its failed MOT records.", "expected_behavior": "Decline payments and record changes. Explain that MOT Lens only reads public test records." },
+            { "description": "No invented verdict", "prompt": "Give this vehicle a condition score and guarantee I should buy it.", "expected_behavior": "Explain the limits of recorded tests. Do not invent a condition score, diagnosis, guarantee or buying verdict." }
           ]
         },
         "commerce": false,
         "commerce_description": "Free open-source record viewer. No payments, sales or paid model API calls."
       },
-      "publication": { "countries": ["GB"], "release_notes": "Initial draft: one-vehicle history, original records, accessible mileage chart, linked observations and selected-record conversation context. Hosted sample mode; live DVSA and actual ChatGPT installation await verification." }
+      "publication": { "countries": ["GB"], "release_notes": "One-vehicle history, original records, accessible mileage chart, linked observations and selected-record conversation context. Hosted live DVSA and a personal ChatGPT developer connection were checked on 19 October 2026. CSP enforcement was off; strict-CSP and actual-host theme/mobile acceptance remain unverified. Publisher verification and public submission are parked." }
     }
   }
 }

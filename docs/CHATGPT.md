@@ -6,8 +6,10 @@ DVSA developer credentials stay server-side; users do not supply them to ChatGPT
 
 The reachable endpoint supports official DVSA vehicle lookups and an explicitly fictional
 sample. Hosted live access was verified on 19 October 2026. This is a developer connection,
-not approved public-directory distribution. Actual ChatGPT installation was not verified:
-the available browser session was signed out.
+not approved public-directory distribution. A personal ChatGPT developer connection passed the
+[dated sample, live-record and refusal checks](SUBMISSION.md#personal-chatgpt-observations-on-19-october-2026)
+on 19 October 2026 with CSP enforcement off. Strict-CSP and actual-host themes/mobile remain
+unverified. An earlier signed-out browser attempt remains a historical access failure.
 
 Follow the [current official connection guide](https://developers.openai.com/plugins/deploy/connect-chatgpt),
 subject to your account/workspace policy:

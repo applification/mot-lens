@@ -17,16 +17,18 @@ remains available as an alias. Both addresses serve the same service and secrets
 Use an existing Cloudflare account, then check its identity and choose an unused Worker name.
 Change `name`, unique rate-limit namespace ID, `WIDGET_DOMAIN` and the custom-domain `routes`
 in `wrangler.jsonc` for your copy; remove `routes` for a workers.dev-only deployment. Update
-the setup page's public server URL too. Do not reuse another deployment's bindings/verification
-challenge. No custom domain is required for the developer endpoint. Do not change an account's
-shared workers.dev subdomain.
+`PUBLIC_ENDPOINT` too. The setup page derives its URL from that validated configuration.
+Do not reuse another deployment's bindings or verification challenge. No custom domain is required
+for the developer endpoint. Do not change an account's shared workers.dev subdomain.
+
+For this repository, use the [release guide](RELEASING.md). It prepares the reviewed source,
+checks staging, records a fresh production rollback version and verifies the deployed artifact.
+Local Cloudflare authentication is required only for deployment and cloud history reads.
+Credential-free bundle checks are available for both configurations.
 
 ```sh
-bun install --frozen-lockfile
-bun run verify
-bunx wrangler whoami
-bunx wrangler deploy --dry-run
-bunx wrangler deploy --var BUILD_ID:$(git rev-parse HEAD)
+bunx wrangler deploy --dry-run --env ""
+bunx wrangler deploy --dry-run --env staging
 ```
 
 `DVSA_GATE` is one named memory-only coordinator across regions. The SQLite-capable class
@@ -78,9 +80,10 @@ increasing traffic. [Workers pricing](https://developers.cloudflare.com/workers/
 [lifecycle](https://developers.cloudflare.com/durable-objects/concepts/durable-object-lifecycle/).
 
 Record the returned version ID and source build on every release. `bunx wrangler deployments list`
-lists versions; `bunx wrangler rollback VERSION_ID` restores a known prior deployment (follow
-CLI confirmation). For the first release there is no prior production version. Re-deploy a
-known source revision if needed. There is no application data to restore. Removing the five
+lists versions. `bunx wrangler rollback VERSION_ID` restores a known prior deployment after CLI
+confirmation. The release CLI reads the current production deployment before upload and retains
+its rollback command. Do not use historical IDs in verification notes as current recovery targets.
+There is no application data to restore. Removing the five
 DVSA secrets disables live lookup while retaining the sample. Local `.env` is independent.
 
 ## Verify the public target
@@ -91,6 +94,16 @@ MOT_LENS_ENDPOINT=https://mot-lens.applification.net/mcp bun run control sample
 MOT_LENS_ENDPOINT=https://mot-lens.applification.net/mcp bun run control resource
 MOT_LENS_BROWSER_ENDPOINT=https://mot-lens.applification.net/mcp bun run test:e2e
 ```
+
+The release verifier requires a prepared artifact and the explicit target.
+
+```sh
+bun run release verify --target production --artifact dist/release/0.1.0/release.json
+```
+
+It asserts exact version, source SHA, widget SHA, UI origin, endpoint and live mode.
+Staging uses the same command with `--target staging` and expects sample mode.
+The staging Worker is independent of production and never uses production secrets.
 
 For manual browser verification, use the local development host with its explicit endpoint:
 `http://127.0.0.1:5173/?endpoint=https%3A%2F%2Fmot-lens.applification.net%2Fmcp`.

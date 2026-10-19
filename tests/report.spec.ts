@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 const previewPath = process.env.MOT_LENS_BROWSER_ENDPOINT ? `/?endpoint=${encodeURIComponent(process.env.MOT_LENS_BROWSER_ENDPOINT)}` : '/';
-test('sample → expand → original failure → model context → conversation message', async ({ page }) => {
+test('sample → expand → original failure → model context → conversation message', async ({ page }, testInfo) => {
   await page.goto(previewPath); const app = page.frameLocator('iframe');
   await expect(app.getByRole('heading', { name: 'Volkswagen Golf' })).toBeVisible();
   await expect(app.getByText('Sample report', { exact: true })).toBeVisible();
-  await app.locator('body').screenshot({ path: '.astack/report/evidence/inline.png' });
+  await app.locator('body').screenshot({ path: testInfo.outputPath('inline.png') });
   await app.getByRole('button', { name: 'Expand vehicle report' }).click();
   await expect(app.getByRole('heading', { name: 'A record of every test' })).toBeVisible();
   await app.getByRole('button', { name: 'Failed tests', exact: true }).click();
@@ -17,9 +17,9 @@ test('sample → expand → original failure → model context → conversation 
   await expect(page.getByTestId('conversation-message')).toContainText('Headlamp aim too low');
   await app.getByRole('button', { name: 'All tests', exact: true }).click(); await expect(app.locator('.test-row')).toHaveCount(9);
   await expect(app.getByRole('heading', { name: 'A mileage reading worth checking' })).toBeVisible();
-  await page.screenshot({ path: '.astack/report/evidence/desktop-light.png', fullPage: true });
+  await page.screenshot({ path: testInfo.outputPath('desktop-light.png'), fullPage: true });
 });
-test('theme updates, keyboard chart selection, table alternative, new lookup and context reset', async ({ page }) => {
+test('theme updates, keyboard chart selection, table alternative, new lookup and context reset', async ({ page }, testInfo) => {
   await page.goto(previewPath); const app = page.frameLocator('iframe'); await expect(app.getByRole('heading', { name: 'Volkswagen Golf' })).toBeVisible();
   await page.getByRole('button', { name: 'Switch to dark' }).click(); await expect(app.locator('html')).toHaveAttribute('data-theme', 'dark');
   await app.getByRole('button', { name: '20 Sept 2019, 11:10: 28,120 mi, PASSED', exact: true }).focus(); await page.keyboard.press('Enter');
@@ -27,17 +27,17 @@ test('theme updates, keyboard chart selection, table alternative, new lookup and
   await expect(page.getByTestId('model-context')).toContainText('SAMPLE-1');
   await app.getByText('View recorded readings as a table').click(); await expect(app.getByRole('table')).toBeVisible();
   await expect(app.getByRole('row')).toHaveCount(10);
-  await page.screenshot({ path: '.astack/report/evidence/desktop-dark.png', fullPage: true });
+  await page.screenshot({ path: testInfo.outputPath('desktop-dark.png'), fullPage: true });
   await page.getByLabel('Registration', { exact: true }).fill('../bad'); await page.getByRole('button', { name: 'Look up', exact: true }).click();
   await expect(app.getByText('Enter a UK registration using letters and numbers', { exact: false })).toBeVisible();
   await expect(page.getByTestId('model-context')).toContainText('No vehicle report or selected test is active');
   await page.getByRole('button', { name: 'Load sample', exact: true }).click(); await expect(app.getByRole('heading', { name: 'Volkswagen Golf' })).toBeVisible();
   await expect(page.getByTestId('model-context')).toContainText('"selectedTest":null');
 });
-test('mobile, no-tests, mixed units, missing data and remount', async ({ page }) => {
+test('mobile, no-tests, mixed units, missing data and remount', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 }); await page.goto(previewPath); const app = page.frameLocator('iframe');
   await expect(app.getByRole('heading', { name: 'Volkswagen Golf' })).toBeVisible(); await app.getByRole('button', { name: 'Expand vehicle report' }).click();
-  await app.locator('.test-row').first().click(); await page.screenshot({ path: '.astack/report/evidence/mobile.png', fullPage: true });
+  await app.locator('.test-row').first().click(); await page.screenshot({ path: testInfo.outputPath('mobile.png'), fullPage: true });
   await expect.poll(async () => app.locator('body').evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
   await page.getByText('Inspect host context and messages').click(); await page.getByRole('button', { name: 'No tests fixture' }).click();
   await expect(app.getByText('No recorded MOT tests were returned')).toBeVisible(); await expect(app.getByText('First MOT due: 1 Mar 2027')).toBeVisible();

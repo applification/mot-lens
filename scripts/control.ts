@@ -1,17 +1,17 @@
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { z } from 'zod';
-import { outcomeSchema, reportSummary, selectedContext } from '@mot-lens/domain';
+import { PRODUCT, outcomeSchema, reportSummary, selectedContext } from '@mot-lens/domain';
 
 const [command = 'doctor', argument] = process.argv.slice(2);
 const endpoint = new URL(process.env.MOT_LENS_ENDPOINT ?? 'http://127.0.0.1:8787/mcp');
 if (!['doctor', 'tools', 'sample', 'lookup', 'resource'].includes(command)) throw new Error('Usage: bun run control doctor|tools|sample|lookup REGISTRATION|resource');
-const client = new Client({ name: 'mot-lens-control', version: '0.1.0' });
+const client = new Client({ name: `${PRODUCT.name}-control`, version: PRODUCT.version });
 try {
   await client.connect(new StreamableHTTPClientTransport(endpoint));
   if (command === 'doctor') {
     const response = await fetch(new URL('/health', endpoint));
-    const identity = z.object({ app: z.literal('mot-lens'), status: z.literal('ok'), mode: z.enum(['sample', 'live']), build: z.string() }).parse(await response.json());
-    process.stdout.write(`${JSON.stringify({ endpoint: endpoint.href, ...identity, tools: (await client.listTools()).tools.map(tool => tool.name) }, null, 2)}\n`);
+    const identity = z.object({ app: z.literal('mot-lens'), status: z.literal('ok'), version: z.string(), mode: z.enum(['sample', 'live']), build: z.string(), endpoint: z.url() }).parse(await response.json());
+    process.stdout.write(`${JSON.stringify({ requestedEndpoint: endpoint.href, ...identity, tools: (await client.listTools()).tools.map(tool => tool.name) }, null, 2)}\n`);
   } else if (command === 'tools') process.stdout.write(`${JSON.stringify((await client.listTools()).tools, null, 2)}\n`);
   else if (command === 'resource') {
     const result = await client.readResource({ uri: 'ui://mot-lens/report-v1.html' }); const resource = result.contents[0];

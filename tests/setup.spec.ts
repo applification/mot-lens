@@ -1,7 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { z } from 'zod';
 
 const setupUrl = new URL('/', process.env.MOT_LENS_BROWSER_ENDPOINT ?? 'http://127.0.0.1:8787/mcp').href;
-const endpoint = 'https://mot-lens.applification.net/mcp';
+let endpoint: string;
+test.beforeAll(async () => {
+  const response = await fetch(new URL('/health', setupUrl));
+  endpoint = z.object({ endpoint: z.url() }).parse(await response.json()).endpoint;
+});
 
 test('connection page explains both hosts, copies the public endpoint and fits mobile', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(setupUrl).origin });

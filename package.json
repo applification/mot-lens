@@ -15,7 +15,8 @@
     "start": "node --env-file-if-exists=.env --import tsx apps/mcp/src/local.ts",
     "control": "tsx scripts/control.ts",
     "package:plugin": "tsx scripts/package-plugin.ts",
-    "verify:hosted": "tsx scripts/verify-hosted.ts"
+    "verify:hosted": "tsx scripts/release.ts verify",
+    "release": "tsx scripts/release.ts"
   },
   "dependencies": {
     "@mot-lens/domain": "workspace:*",
@@ -38,6 +39,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.0",
+    "fflate": "0.8.2",
     "miniflare": "5.20261006.1-alpha",
     "sharp": "^0.35.5",
     "tsx": "^4.20.0",
@@ -47,5 +49,6 @@
     "vite-plugin-singlefile": "^2.3.0",
     "vitest": "^4.0.0",
     "wrangler": "4.149.0"
-  }
+  },
+  "repository": "https://github.com/applification/mot-lens"
 }

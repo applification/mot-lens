@@ -1,3 +1,4 @@
+export { PRODUCT } from './identity';
 import { z } from 'zod';
 
 // The current lookup contract is a single object. Nullable/absent fields are

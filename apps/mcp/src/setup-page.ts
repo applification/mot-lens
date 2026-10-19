@@ -1,5 +1,7 @@
+import { PRODUCT } from '@mot-lens/domain';
+
 // Public connection instructions; the vehicle report remains an MCP resource.
-export const setupPage = String.raw`<!doctype html>
+export const setupPage = (endpoint: string) => String.raw`<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -73,7 +75,7 @@ export const setupPage = String.raw`<!doctype html>
       <section class="connection" aria-label="Connection details">
         <label for="server-url">MCP server URL · the same for both</label>
         <div class="endpoint">
-          <input id="server-url" type="text" readonly spellcheck="false" value="https://mot-lens.applification.net/mcp" aria-describedby="connection-note">
+          <input id="server-url" type="text" readonly spellcheck="false" value="${endpoint}" aria-describedby="connection-note">
           <button id="copy-url" type="button" aria-label="Copy MCP server URL" hidden>Copy URL</button>
         </div>
         <p class="connection-note" id="connection-note">Choose no authentication. MOT Lens needs no sign-in, API key or request headers.</p>
@@ -110,7 +112,7 @@ export const setupPage = String.raw`<!doctype html>
       </section>
     </main>
     <footer>
-      <nav class="footer-links" aria-label="About MOT Lens"><a href="https://github.com/rufushudson/mot-lens">Source code</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/health">Service health</a></nav>
+      <nav class="footer-links" aria-label="About MOT Lens"><a href="${PRODUCT.repository}">Source code</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/health">Service health</a></nav>
       <p>Official records come from the DVSA MOT History API. Contains public sector information licensed under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government Licence v3.0</a>.</p>
       <p>An MOT records a test at a point in time, not a vehicle’s current condition. MOT Lens is independent of DVSA, OpenAI and Anthropic.</p>
     </footer>

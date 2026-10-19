@@ -1,6 +1,6 @@
 import { useId, useState } from 'react';
 import { ArrowDownLeft, ArrowUpRight, Check, ChevronRight, CircleHelp, Code2, Expand, FileText, Minus, X } from 'lucide-react';
-import { chronological, dateLabel, latestDatedTests, latestTest, mileageInMiles, mileageLabel, recordedExpiry, timestamp, type Report as VehicleReport, type Test } from '@mot-lens/domain';
+import { PRODUCT, chronological, dateLabel, latestDatedTests, latestTest, mileageInMiles, mileageLabel, recordedExpiry, timestamp, type Report as VehicleReport, type Test } from '@mot-lens/domain';
 import './styles.css';
 
 export interface ReportProps {
@@ -125,6 +125,6 @@ export function Report({ report, selectedId, expanded, onSelect, onExpand, onExp
     </>}
     {actionError && <p role="alert" className="action-error">{actionError}</p>}
     <aside className="record-scope">A test is a snapshot, not a vehicle condition assessment. A missing advisory in a later test does not show that it was repaired.</aside>
-    <footer className="report-footer"><div className="source-details"><span>{sample ? 'Representative sample' : <a href="https://documentation.history.mot.api.gov.uk/" target="_blank" rel="noreferrer">DVSA MOT History API <ArrowUpRight size={11} aria-hidden="true" /></a>}</span><span>{sample ? 'Sample loaded' : 'Retrieved'} {dateLabel(report.provenance.retrievedAt, true)} · Cache age {report.provenance.cacheAgeSeconds}s at delivery</span>{!sample && <span>Contains public sector information licensed under <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noreferrer">OGL v3.0</a>. GB light vehicles since 2005, GB commercial vehicles since 2018, NI since 2017.</span>}</div><div className="footer-brand"><span>By <a href="https://applification.net" target="_blank" rel="noreferrer">Applification</a></span><a href="https://github.com/rufushudson/mot-lens" target="_blank" rel="noreferrer"><Code2 size={13} aria-hidden="true" /> Source code</a></div></footer>
+    <footer className="report-footer"><div className="source-details"><span>{sample ? 'Representative sample' : <a href="https://documentation.history.mot.api.gov.uk/" target="_blank" rel="noreferrer">DVSA MOT History API <ArrowUpRight size={11} aria-hidden="true" /></a>}</span><span>{sample ? 'Sample loaded' : 'Retrieved'} {dateLabel(report.provenance.retrievedAt, true)} · Cache age {report.provenance.cacheAgeSeconds}s at delivery</span>{!sample && <span>Contains public sector information licensed under <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/" target="_blank" rel="noreferrer">OGL v3.0</a>. GB light vehicles since 2005, GB commercial vehicles since 2018, NI since 2017.</span>}</div><div className="footer-brand"><span>By <a href="https://applification.net" target="_blank" rel="noreferrer">Applification</a></span><a href={PRODUCT.repository} target="_blank" rel="noreferrer"><Code2 size={13} aria-hidden="true" /> Source code</a></div></footer>
   </article>;
 }

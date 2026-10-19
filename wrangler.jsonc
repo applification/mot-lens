@@ -11,6 +11,18 @@
   ],
   "durable_objects": { "bindings": [{ "name": "DVSA_GATE", "class_name": "DvsaGate" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DvsaGate"] }],
-  "vars": { "BUILD_ID": "0.1.0", "WIDGET_DOMAIN": "https://mot-lens.applification.net" },
-  "observability": { "enabled": false }
+  "vars": { "WIDGET_DOMAIN": "https://mot-lens.applification.net", "PUBLIC_ENDPOINT": "https://mot-lens.applification.net/mcp", "DATA_MODE": "live" },
+  "observability": { "enabled": false },
+  "env": {
+    "staging": {
+      "name": "mot-lens-staging",
+      "workers_dev": true,
+      "routes": [],
+      "ratelimits": [
+        { "name": "PUBLIC_LIMITER", "namespace_id": "90121002", "simple": { "limit": 90, "period": 60 } }
+      ],
+      "durable_objects": { "bindings": [{ "name": "DVSA_GATE", "class_name": "DvsaGate" }] },
+      "vars": { "WIDGET_DOMAIN": "https://mot-lens-staging.web3-blog.workers.dev", "PUBLIC_ENDPOINT": "https://mot-lens-staging.web3-blog.workers.dev/mcp", "DATA_MODE": "sample" }
+    }
+  }
 }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App, type McpUiHostContext } from '@modelcontextprotocol/ext-apps';
 import { Report } from '@mot-lens/ui';
-import { outcomeSchema, selectedContext, type Outcome, type Test } from '@mot-lens/domain';
+import { PRODUCT, outcomeSchema, selectedContext, type Outcome, type Test } from '@mot-lens/domain';
 import { ReportSession, type SessionScope } from './session';
 
 type View = { kind: 'loading' } | { kind: 'result'; outcome: Outcome } | { kind: 'broken'; message: string };
@@ -21,7 +21,7 @@ export function BridgeApp() {
   const resetContext = useRef<(reason: string) => SessionScope | undefined>(() => undefined);
   useEffect(() => {
     let active = true;
-    const app = new App({ name: 'MOT Lens', version: '0.1.0' }, {}, { autoResize: true });
+    const app = new App({ name: PRODUCT.title, version: PRODUCT.version }, {}, { autoResize: true });
     const session = new ReportSession(app); appRef.current = app; sessionRef.current = session;
     const clear = (reason: string) => {
       setSelectedId(null); setActionError(null); setExplaining(false);
