@@ -1,5 +1,14 @@
 # MOT Lens delivery evidence
 
+19 October setup page: `/` now serves public connection instructions for ChatGPT and Claude,
+with a copyable canonical MCP URL, manual clipboard fallback, official host guides and starter
+prompts. The vehicle UI remains exclusively an MCP resource. The exact Claude origin is
+permitted; lookalike domains and attacker-controlled matched Host/Origin remain rejected.
+Instructions were checked against the linked official host documentation on 19 October.
+`bun run verify` passes the production build, strict TypeScript, **57** domain/adapter/protocol/
+runtime checks and **ten** local browser journeys (eight packaged-report, two setup-page).
+Worker dry-run and desktop visual inspection pass. Installed ChatGPT and Claude are unverified.
+
 19 October live activation: all five hosted secrets are configured. The first hosted lookup
 returned `UPSTREAM_UNAVAILABLE` before contacting DVSA because Cloudflare rejects the Fetch
 redirect mode `error`. Miniflare reproduced the runtime `TypeError`; all three new adapter

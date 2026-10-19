@@ -24,7 +24,11 @@ describe('real MCP contract', () => {
     try {
       const attacker = await call(`http://rebind.example:${address.port}`, `rebind.example:${address.port}`);
       expect(attacker).toEqual({ status: 403, cors: undefined, body: '{"error":"Origin not permitted"}' }); expect(lookups).toBe(0);
-      for (const origin of ['http://127.0.0.1:5173', 'http://localhost:5173', 'https://chatgpt.com', undefined]) {
+      for (const origin of ['https://claude.ai.evil.example', 'https://evil.claude.ai', 'https://claude.ai@evil.example']) {
+        const rejected = await call(origin); expect(rejected.status).toBe(403); expect(rejected.cors).toBeUndefined();
+      }
+      expect(lookups).toBe(0);
+      for (const origin of ['http://127.0.0.1:5173', 'http://localhost:5173', 'https://chatgpt.com', 'https://claude.ai', undefined]) {
         const valid = await call(origin); expect(valid.status).toBe(200); expect(valid.cors).toBe(origin);
         expect(JSON.parse(valid.body).result.structuredContent.report.vehicle.registration).toBe('AB12CDE');
       }

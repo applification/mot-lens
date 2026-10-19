@@ -35,7 +35,7 @@ bun run verify
 
 ## Connect and contribute
 
-Use [the ChatGPT connection guide](docs/CHATGPT.md) for the public HTTPS endpoint and installation steps. [Submission materials](docs/SUBMISSION.md) include a draft plugin package, review cases and recording script. A reachable developer endpoint does not mean approved public distribution.
+Open the [public setup page](https://mot-lens.web3-blog.workers.dev/) for ChatGPT and Claude instructions and the copyable MCP server URL. Detailed [ChatGPT](docs/CHATGPT.md) and [Claude](docs/CLAUDE.md) connection guides cover host setup. [Submission materials](docs/SUBMISSION.md) include a draft plugin package, review cases and recording script. A reachable developer endpoint does not mean approved public distribution.
 
 See [DVSA integration and accuracy](docs/DVSA.md), [environment variables](docs/ENVIRONMENT.md), [architecture](docs/ARCHITECTURE.md), [feature controls](docs/FEATURES.md) and [verification evidence](.astack/report/verification.md).
 
@@ -45,4 +45,4 @@ The hosted deployment supports live DVSA lookups. Authentication and an owner-su
 
 Code: [MIT](LICENSE). Official records: DVSA MOT History API, with public-sector attribution under [OGL v3](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). Sample records are fictional. MOT records describe a test at a point in time, not current roadworthiness. Neither DVSA nor OpenAI endorses MOT Lens.
 
-No accounts, payments, application database, analytics, monitoring jobs or bulk imports. Vehicle/token caching is bounded ephemeral server memory. The production server exposes MCP, health and policy endpoints; its React interface is an MCP resource.
+No accounts, payments, application database, analytics, monitoring jobs or bulk imports. Vehicle/token caching is bounded ephemeral server memory. The production server exposes a setup page, MCP, health and policy endpoints; its React report is an MCP resource.
