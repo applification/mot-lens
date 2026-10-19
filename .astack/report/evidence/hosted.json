@@ -1,10 +1,10 @@
 {
-  "checkedAt": "2026-10-09T14:14:02.263Z",
+  "checkedAt": "2026-10-19T15:59:18.271Z",
   "endpoint": "https://mot-lens.web3-blog.workers.dev/mcp",
   "app": "mot-lens",
   "status": "ok",
-  "mode": "sample",
-  "build": "aec56c5b6acbe7e4da2444b4536dc858d0326700",
+  "mode": "live",
+  "build": "b10d5c6faa78d9ff675d9bb0541a59e60f2c80a8+dvsa-redirect-fix",
   "tools": [
     "get_vehicle_history",
     "show_vehicle_report"
@@ -13,8 +13,8 @@
   "sampleObservations": 2,
   "resource": {
     "mimeType": "text/html;profile=mcp-app",
-    "bytes": 492363,
-    "sha256": "7b4d1ccbcce051a76f63e9620520e05f3de73e14d97b22d47365dd5416716b4b",
+    "bytes": 493154,
+    "sha256": "94eabeb01b1f903ccfc3128a6880753dafaab56038208113d06c79e8f8354a27",
     "domain": "https://mot-lens.web3-blog.workers.dev",
     "csp": {
       "connectDomains": [],

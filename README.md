@@ -39,7 +39,7 @@ Use [the ChatGPT connection guide](docs/CHATGPT.md) for the public HTTPS endpoin
 
 See [DVSA integration and accuracy](docs/DVSA.md), [environment variables](docs/ENVIRONMENT.md), [architecture](docs/ARCHITECTURE.md), [feature controls](docs/FEATURES.md) and [verification evidence](.astack/report/verification.md).
 
-The initial deployment is sample-only because DVSA credentials were unavailable. Automated local tests exercise the adapter with explicit fixtures, the actual MCP protocol and the packaged app through the standard bridge. Actual ChatGPT installation and live DVSA access remain separate verification steps.
+The hosted deployment supports live DVSA lookups. Authentication and an owner-supplied vehicle were verified on 19 October 2026. Automated tests also exercise explicit fixtures, the MCP protocol, Cloudflare's local runtime and the packaged app through the standard bridge. Actual ChatGPT installation remains a separate verification step.
 
 ## Licence and scope
 

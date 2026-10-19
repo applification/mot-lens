@@ -5,8 +5,8 @@ Current MCP endpoint: **https://mot-lens.web3-blog.workers.dev/mcp**.
 and [terms](https://mot-lens.web3-blog.workers.dev/terms) are public. `/` describes the service
 as JSON; it is not a consumer website. The MCP resource contains the interactive UI.
 
-The initial deployment is sample-only. The real adapter is present but no DVSA credentials
-were available. Real lookups return `NOT_CONFIGURED`; only explicit sample requests show fiction.
+The hosted deployment supports live DVSA lookups, verified on 19 October 2026. A deployment
+without all five DVSA settings returns `NOT_CONFIGURED`; only explicit sample requests show fiction.
 
 ## Deploy your own copy
 

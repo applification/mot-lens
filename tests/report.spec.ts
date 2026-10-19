@@ -28,8 +28,8 @@ test('theme updates, keyboard chart selection, table alternative, new lookup and
   await app.getByText('View recorded readings as a table').click(); await expect(app.getByRole('table')).toBeVisible();
   await expect(app.getByRole('row')).toHaveCount(10);
   await page.screenshot({ path: '.astack/report/evidence/desktop-dark.png', fullPage: true });
-  await page.getByLabel('Registration', { exact: true }).fill('AB12 CDE'); await page.getByRole('button', { name: 'Look up', exact: true }).click();
-  await expect(app.getByText('Live DVSA lookups are not configured yet.', { exact: false })).toBeVisible();
+  await page.getByLabel('Registration', { exact: true }).fill('../bad'); await page.getByRole('button', { name: 'Look up', exact: true }).click();
+  await expect(app.getByText('Enter a UK registration using letters and numbers', { exact: false })).toBeVisible();
   await expect(page.getByTestId('model-context')).toContainText('No vehicle report or selected test is active');
   await page.getByRole('button', { name: 'Load sample', exact: true }).click(); await expect(app.getByRole('heading', { name: 'Volkswagen Golf' })).toBeVisible();
   await expect(page.getByTestId('model-context')).toContainText('"selectedTest":null');
