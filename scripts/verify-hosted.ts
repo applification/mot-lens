@@ -39,7 +39,7 @@ try {
   const setup = await fetch(new URL('/', endpoint)); assert.equal(setup.status, 200);
   assert.ok(setup.headers.get('content-type')?.includes('text/html'));
   const setupHtml = await setup.text();
-  assert.ok(setupHtml.includes('https://mot-lens.web3-blog.workers.dev/mcp'));
+  assert.ok(setupHtml.includes('https://mot-lens.applification.net/mcp'));
   assert.ok(setupHtml.includes('Official ChatGPT connection guide') && setupHtml.includes('Official Claude connector guide'));
   const evidence = { checkedAt: new Date().toISOString(), endpoint: endpoint.href, ...identity,
     tools: tools.map(tool => tool.name), sampleTests: sample.report.tests.length, sampleObservations: sample.report.observations.length,

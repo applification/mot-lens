@@ -5,11 +5,12 @@
   "compatibility_date": "2026-10-09",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
+  "routes": [{ "pattern": "mot-lens.applification.net", "custom_domain": true }],
   "ratelimits": [
     { "name": "PUBLIC_LIMITER", "namespace_id": "90121001", "simple": { "limit": 90, "period": 60 } }
   ],
   "durable_objects": { "bindings": [{ "name": "DVSA_GATE", "class_name": "DvsaGate" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DvsaGate"] }],
-  "vars": { "BUILD_ID": "0.1.0", "WIDGET_DOMAIN": "https://mot-lens.web3-blog.workers.dev" },
+  "vars": { "BUILD_ID": "0.1.0", "WIDGET_DOMAIN": "https://mot-lens.applification.net" },
   "observability": { "enabled": false }
 }

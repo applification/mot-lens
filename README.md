@@ -35,7 +35,7 @@ bun run verify
 
 ## Connect and contribute
 
-Open the [public setup page](https://mot-lens.web3-blog.workers.dev/) for ChatGPT and Claude instructions and the copyable MCP server URL. Detailed [ChatGPT](docs/CHATGPT.md) and [Claude](docs/CLAUDE.md) connection guides cover host setup. [Submission materials](docs/SUBMISSION.md) include a draft plugin package, review cases and recording script. A reachable developer endpoint does not mean approved public distribution.
+Open the [public setup page](https://mot-lens.applification.net/) for ChatGPT and Claude instructions and the copyable MCP server URL. Detailed [ChatGPT](docs/CHATGPT.md) and [Claude](docs/CLAUDE.md) connection guides cover host setup. [Submission materials](docs/SUBMISSION.md) include a draft plugin package, review cases and recording script. A reachable developer endpoint does not mean approved public distribution.
 
 See [DVSA integration and accuracy](docs/DVSA.md), [environment variables](docs/ENVIRONMENT.md), [architecture](docs/ARCHITECTURE.md), [feature controls](docs/FEATURES.md) and [verification evidence](.astack/report/verification.md).
 

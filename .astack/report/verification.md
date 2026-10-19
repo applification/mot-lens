@@ -1,5 +1,12 @@
 # MOT Lens delivery evidence
 
+19 October custom-domain configuration: `mot-lens.applification.net` is the primary setup
+and MCP host. The active `applification.net` zone was confirmed in the Worker account; no
+Worker domain or authoritative DNS record occupied this hostname before configuration.
+Wrangler declares a Custom Domain and preserves the workers.dev alias. Current connection
+guides, setup URL, plugin manifests and UI-domain metadata use the new hostname.
+The observations below retain the addresses and builds actually used for those checks.
+
 19 October setup page: `/` now serves public connection instructions for ChatGPT and Claude,
 with a copyable canonical MCP URL, manual clipboard fallback, official host guides and starter
 prompts. The vehicle UI remains exclusively an MCP resource. The exact Claude origin is

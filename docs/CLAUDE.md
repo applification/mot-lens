@@ -1,6 +1,6 @@
 # Connect MOT Lens to Claude
 
-MCP server URL: **https://mot-lens.web3-blog.workers.dev/mcp**.
+MCP server URL: **https://mot-lens.applification.net/mcp**.
 Transport: Streamable HTTP. Authentication: **No sign in**. Leave request headers empty.
 DVSA developer credentials stay on the server; users do not supply them to Claude.
 

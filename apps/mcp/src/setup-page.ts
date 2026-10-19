@@ -73,7 +73,7 @@ export const setupPage = String.raw`<!doctype html>
       <section class="connection" aria-label="Connection details">
         <label for="server-url">MCP server URL · the same for both</label>
         <div class="endpoint">
-          <input id="server-url" type="text" readonly spellcheck="false" value="https://mot-lens.web3-blog.workers.dev/mcp" aria-describedby="connection-note">
+          <input id="server-url" type="text" readonly spellcheck="false" value="https://mot-lens.applification.net/mcp" aria-describedby="connection-note">
           <button id="copy-url" type="button" aria-label="Copy MCP server URL" hidden>Copy URL</button>
         </div>
         <p class="connection-note" id="connection-note">Choose no authentication. MOT Lens needs no sign-in, API key or request headers.</p>
