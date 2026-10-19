@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 import { outcomeSchema } from '@mot-lens/domain';
 
 const script = execFileSync('bun', ['build', fileURLToPath(new URL('./fixtures/dvsa-worker.ts', import.meta.url)), '--target=browser'], { encoding: 'utf8' });
@@ -42,6 +43,32 @@ describe('DVSA requests in the Cloudflare runtime', () => {
         expect(requests.length).toBe(redirectAt === 'token' ? 1 : 4);
         expect(requests.every(request => request.url === tokenUrl || request.url === vehicleUrl)).toBe(true);
       }
+    } finally { await runtime.dispose(); }
+  });
+});
+
+describe('staging Worker isolation', () => {
+  it('forces sample mode and suppresses verification tokens even with fixture credentials present', async () => {
+    const worker = execFileSync('bun', ['build', fileURLToPath(new URL('../src/worker.ts', import.meta.url)), '--target=browser', '--external=cloudflare:*', '--external=node:*'], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
+    const endpoint = 'https://mot-lens-staging.web3-blog.workers.dev/mcp';
+    let outbound = 0;
+    const runtime = new Miniflare(convertV4MiniflareOptions({
+      modules: true, script: worker, compatibilityDate: '2026-10-09', compatibilityFlags: ['nodejs_compat'],
+      durableObjects: { DVSA_GATE: { className: 'DvsaGate', useSQLite: true } },
+      ratelimits: { PUBLIC_LIMITER: { namespace_id: '90121002', simple: { limit: 90, period: 60 } } },
+      bindings: { WIDGET_DOMAIN: new URL(endpoint).origin, PUBLIC_ENDPOINT: endpoint, DATA_MODE: 'sample', BUILD_ID: 'a'.repeat(40),
+        DVSA_API_KEY: 'fixture-api-key', DVSA_CLIENT_ID: 'fixture-client', DVSA_CLIENT_SECRET: 'fixture-secret',
+        DVSA_TOKEN_URL: tokenUrl, DVSA_SCOPE: 'fixture-scope', OPENAI_VERIFICATION_TOKEN: 'fixture-challenge',
+      },
+      outboundService: async () => { outbound++; return new Response('Unexpected upstream request', { status: 500 }); },
+    }));
+    try {
+      expect(await (await runtime.dispatchFetch('http://localhost/health')).json()).toMatchObject({ mode: 'sample', build: 'a'.repeat(40), endpoint });
+      expect((await runtime.dispatchFetch('http://localhost/.well-known/openai-apps-challenge')).status).toBe(404);
+      const response = await runtime.dispatchFetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'get_vehicle_history', arguments: { registration: 'AB12CDE' } } }) });
+      const result = z.object({ result: z.object({ structuredContent: outcomeSchema }) }).parse(await response.json());
+      const outcome = result.result.structuredContent;
+      expect(outcome.kind === 'error' ? outcome.code : null).toBe('NOT_CONFIGURED'); expect(outbound).toBe(0);
     } finally { await runtime.dispose(); }
   });
 });
